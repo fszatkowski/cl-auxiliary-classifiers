@@ -267,7 +267,7 @@ class Appr(Inc_Learning_Appr):
         if self.scheduler is not None:
             self.scheduler.step()
 
-    def eval(self, t, val_loader):
+    def eval(self, t, val_loader, features_save_dir=None):
         """Contains the evaluation code"""
         with torch.no_grad():
             if self.model.is_early_exit():
@@ -485,6 +485,7 @@ class iCaRLModelWrapper(torch.nn.Module):
         return logits
 
     def pdf_logits(self, dists, sigma=1):
+        # TODO check for correctness?
         probabilities = (
             torch.exp(-0.5 * (dists**2) / sigma) / (2 * torch.pi * sigma) ** 0.5
         )

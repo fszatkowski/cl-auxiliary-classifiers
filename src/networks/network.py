@@ -141,13 +141,20 @@ class LLL_Net(nn.Module):
             assert len(features) == len(self.ic_layers) + 1
 
             outputs = []
-            for head_idx, (ic_features, heads) in enumerate(zip(features, self.heads)):
+            for ic_idx, (ic_features, heads) in enumerate(zip(features, self.heads)):
                 head_outputs = []
-                if self.detach_ics and head_idx != len(heads) - 1:
+                if self.detach_ics and ic_idx != len(heads) - 1:
                     ic_features = ic_features.detach()
 
-                for head in heads:
-                    head_outputs.append(head(ic_features))
+                for head_idx, head in enumerate(heads):
+                    if (
+                        ic_idx != (len(self.ic_layers))
+                        and "cascading" in self.ic_type[ic_idx]
+                    ):
+                        prev_output = outputs[ic_idx - 1][head_idx]
+                        head_outputs.append(head(ic_features, prev_output.detach()))
+                    else:
+                        head_outputs.append(head(ic_features))
                 outputs.append(head_outputs)
             assert len(outputs) == len(self.ic_layers) + 1
 

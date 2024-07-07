@@ -4,6 +4,13 @@ from .lenet import LeNet
 from .resnet32 import resnet32
 from .resnet32_ln import resnet32_ln
 from .resnet32_no_bn import resnet32_no_bn
+from .resnet_cifar import (
+    resnet18_cifar,
+    resnet34_cifar,
+    resnet50_cifar,
+    resnet101_cifar,
+    resnet152_cifar,
+)
 from .vggnet import VggNet
 
 # available torchvision models
@@ -50,7 +57,16 @@ tvmodels = [
     "efficientnet_b7",
 ]
 
-allmodels = tvmodels + ["resnet32", "resnet32_no_bn", "resnet32_ln", "LeNet", "VggNet"]
+allmodels = tvmodels + [
+    "resnet18_cifar",
+    "resnet34_cifar",
+    "resnet50_cifar",
+    "resnet101_cifar",
+    "resnet152_cifar",
+    "resnet32",
+    "LeNet",
+    "VggNet",
+]
 
 
 def set_tvmodel_head_var(model):

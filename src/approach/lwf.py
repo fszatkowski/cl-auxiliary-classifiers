@@ -195,7 +195,7 @@ class Appr(Inc_Learning_Appr):
         if self.scheduler is not None:
             self.scheduler.step()
 
-    def eval(self, t, val_loader):
+    def eval(self, t, val_loader, features_save_dir=None):
         """Contains the evaluation code"""
         with torch.no_grad():
             if self.model.is_early_exit():

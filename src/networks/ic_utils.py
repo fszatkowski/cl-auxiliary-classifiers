@@ -8,6 +8,8 @@ from torch import nn
 def create_ic(ic_type: str, ic_input_size: Tuple[int, ...], num_outputs: int):
     if ic_type == "standard_conv":
         return StandardConvHead(ic_input_size, num_outputs)
+    elif ic_type == "standard_cascading_conv":
+        return StandardCascadingConvHead(ic_input_size, num_outputs)
     elif ic_type == "adaptive_standard_conv":
         return AdaptiveStandardConvHead(ic_input_size, num_outputs)
     elif ic_type == "basic_conv":
@@ -67,6 +69,27 @@ class StandardConvHead(nn.Module):
     def forward(self, x, return_features=False):
         pool_output = self.alpha * self.maxpool(x) + (1 - self.alpha) * self.avgpool(x)
         cls_output = self.classifier(pool_output.view(pool_output.size(0), -1))
+        if return_features:
+            return cls_output, pool_output
+        else:
+            return cls_output
+
+
+class StandardCascadingConvHead(nn.Module):
+    def __init__(self, input_features: Tuple[int, ...], num_classes: int):
+        # Convolutional head similar to one in ZTW paper, but without ensembling
+        super().__init__()
+        self.maxpool = nn.MaxPool2d(kernel_size=2)
+        self.avgpool = nn.AvgPool2d(kernel_size=2)
+        self.alpha = nn.Parameter(torch.rand(1))
+        num_input_features = math.prod(input_features)
+        self.classifier = nn.Linear(num_classes + num_input_features // 4, num_classes)
+
+    def forward(self, x, prev_out, return_features=False):
+        pool_output = self.alpha * self.maxpool(x) + (1 - self.alpha) * self.avgpool(x)
+        cls_input = pool_output.view(pool_output.size(0), -1)
+        cls_input = torch.cat([cls_input, prev_out.view(prev_out.size(0), -1)], dim=1)
+        cls_output = self.classifier(cls_input)
         if return_features:
             return cls_output, pool_output
         else:
