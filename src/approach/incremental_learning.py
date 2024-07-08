@@ -264,7 +264,8 @@ class Inc_Learning_Appr:
                 if features_save_dir is not None:
                     outputs, features = self.model(images, return_features=True)
                     torch.save(
-                        features, features_save_dir / f"task_{t}_batch{batch_idx}.pt"
+                        {"features": features, "outputs": outputs, "targets": targets},
+                        features_save_dir / f"task_{t}_batch{batch_idx}.pt",
                     )
                 else:
                     outputs = self.model(images)

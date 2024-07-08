@@ -347,7 +347,8 @@ def main(argv=None):
     parser.add_argument(
         "--save-features",
         action="store_true",
-        help="Whether or not to save features for analysis (default=%(default)s)",
+        help="Whether or not to save features for analysis."
+        "Logits and targets from early-exit networks are saved by default (default=%(default)s)",
     )
     parser.add_argument(
         "--detach-ics",
@@ -759,8 +760,8 @@ def main(argv=None):
         # Log average accuracy
         if net.is_early_exit():
             for i in range(len(net.ic_layers) + 1):
-                avg_acc_taw = acc_taw[i, : t + 1].mean()
-                avg_acc_tag = acc_tag[i, : t + 1].mean()
+                avg_acc_taw = acc_taw[i, t, : t + 1].mean()
+                avg_acc_tag = acc_tag[i, t, : t + 1].mean()
                 if i == len(net.ic_layers):
                     suffix = ""
                 else:
