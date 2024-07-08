@@ -3,15 +3,12 @@ import importlib
 import os
 import time
 from functools import reduce
+from pathlib import Path
 
 import numpy as np
 import torch
 import torch.multiprocessing
 from dotenv import find_dotenv, load_dotenv
-
-load_dotenv(find_dotenv())
-
-from pathlib import Path
 
 import approach
 import utils
@@ -23,6 +20,7 @@ from last_layer_analysis import last_layer_analysis
 from loggers.exp_logger import MultiLogger
 from networks import allmodels, set_tvmodel_head_var, tvmodels
 
+load_dotenv(find_dotenv())
 torch.multiprocessing.set_sharing_strategy("file_system")
 
 
@@ -798,6 +796,12 @@ def main(argv=None):
                 group="test",
                 value=float(avg_acc_tag),
             )
+
+        # Save models
+        if net.is_early_exit():
+            logger.save_model(appr.ee_net().state_dict(), t)
+        else:
+            logger.save_model(appr.model.state_dict(), t)
 
         # Last layer analysis
         if args.last_layer_analysis:
