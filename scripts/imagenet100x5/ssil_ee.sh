@@ -22,8 +22,8 @@ for seed in 0; do
     --num-workers 0 \
     --seed ${seed} \
     --network resnet18 \
-    --ic-layers layer1.0 layer1.1 layer2.0 layer2.1 layer3.0 layer3.1 layer4.0 \
-    --ic-type standard_conv standard_conv standard_conv standard_conv standard_conv standard_conv adaptive_standard_conv \
+    --ic-layers layer1.1 layer2.0 layer2.1 layer3.0 layer3.1 layer4.0 \
+    --ic-type standard_conv standard_conv standard_conv standard_conv standard_conv adaptive_standard_conv \
     --ic-weighting sdn \
     --input-size 3 224 224 \
     --datasets imagenet_subset_kaggle \
