@@ -242,14 +242,11 @@ class LLL_Net(nn.Module):
     def get_ic_weights(self, current_epoch, max_epochs):
         if self.ic_weighting == "sdn":
             return get_sdn_weights(current_epoch, max_epochs, n_ics=len(self.ic_layers))
-        if self.ic_weighting == "sdn_normalized":
-            sdn_weights = get_sdn_weights(
-                current_epoch, max_epochs, n_ics=len(self.ic_layers)
-            )
-            norm = sum(sdn_weights)
-            return [w / norm for w in sdn_weights]
         elif self.ic_weighting == "uniform":
             return [1.0] * (len(self.ic_layers) + 1)
+        elif self.ic_weighting == "scaled":
+            step = 1 / (len(self.ic_layers) + 2)
+            return [step * (i + 1) for i in range(len(self.ic_layers) + 2)]
         else:
             raise NotImplementedError()
 

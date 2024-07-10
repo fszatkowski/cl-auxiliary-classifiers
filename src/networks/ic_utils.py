@@ -99,12 +99,8 @@ class StandardCascadingConvHead(nn.Module):
 def get_sdn_weights(current_epoch, total_epochs, n_ics):
     if n_ics == 6:
         final_weights = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9]
-    if n_ics == 12:
-        final_weights = [0.15, 0.225, 0.3, 0.375, 0.45, 0.525, 0.6, 0.675, 0.75, 0.825, 0.9, 0.95]
-    elif n_ics == 7:
-        final_weights = [0.2, 0.3, 0.4, 0.55, 0.65, 0.75, 0.9]
     else:
-        raise NotImplementedError()
+        raise NotImplementedError(f"Cannot provide SDN weights for the network with {n_ics} ICs")
 
     start_val = 0.01
     current_weights = [

@@ -142,7 +142,6 @@ class Appr(Inc_Learning_Appr):
         self.model_old.freeze_all()
 
     def train_epoch(self, t, trn_loader):
-
         if t > 0:
             exemplar_loader = torch.utils.data.DataLoader(
                 self.exemplars_dataset,
@@ -152,7 +151,7 @@ class Appr(Inc_Learning_Appr):
                 pin_memory=trn_loader.pin_memory,
                 drop_last=True,
             )
-            trn_loader = zip(trn_loader, exemplar_loader)
+            exemplar_iterator = iter(exemplar_loader)
 
         self.model.train()
         if self.fix_bn and t > 0:
@@ -160,16 +159,21 @@ class Appr(Inc_Learning_Appr):
 
         for samples in trn_loader:
             if t > 0:
-                (data, target), (data_r, target_r) = samples
-                data, data_r = data.to(self.device, non_blocking=True), data_r.to(
-                    self.device, non_blocking=True
-                )
-                data = torch.cat((data, data_r))
-                target, target_r = target.to(
-                    self.device, non_blocking=True
-                ), target_r.to(self.device, non_blocking=True)
+                data, target = samples
+                data = data.to(self.device, non_blocking=True)
+                target = target.to(self.device, non_blocking=True)
+
+                try:
+                    data_r, target_r = next(exemplar_iterator)
+                except StopIteration:
+                    exemplar_iterator = iter(exemplar_loader)
+                    data_r, target_r = next(exemplar_iterator)
+                data_r = data_r.to(self.device, non_blocking=True)
+                target_r = target_r.to(self.device, non_blocking=True)
+
                 # Forward old model
-                targets_old = self.model_old(data.to(self.device, non_blocking=True))
+                data = torch.cat((data, data_r))
+                targets_old = self.model_old(data)
             else:
                 data, target = samples
                 data = data.to(self.device, non_blocking=True)

@@ -22,7 +22,7 @@ from networks import allmodels, set_tvmodel_head_var, tvmodels
 
 load_dotenv(find_dotenv())
 torch.multiprocessing.set_sharing_strategy("file_system")
-
+torch.set_num_threads(1)
 
 def main(argv=None):
     tstart = time.time()

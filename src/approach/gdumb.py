@@ -176,9 +176,6 @@ class Appr(Inc_Learning_Appr):
                 self.regularization == "cutmix" and np.random.rand(1) < 0.5
             )  # cutmix_prob (Sec.4)
 
-            if t == 1:
-                print("???")
-
             if do_cutmix:
                 images, targets_a, targets_b, lamb = cutmix_data(
                     x=images, y=targets, alpha=1.0

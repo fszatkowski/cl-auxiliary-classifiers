@@ -11,7 +11,7 @@ conda activate FACIL
 
 num_tasks=10
 n_epochs=200
-tag="cifar100x5"
+tag="tiny200x10"
 approach='lwf'
 lamb=0.5
 
