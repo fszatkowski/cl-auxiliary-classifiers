@@ -147,8 +147,16 @@ class Appr(Inc_Learning_Appr):
                 self.exemplars_dataset,
                 batch_size=self.replay_batch_size,
                 shuffle=True,
-                num_workers=trn_loader.num_workers,
-                pin_memory=trn_loader.pin_memory,
+                num_workers=trn_loader.num_workers // 2,
+                pin_memory=False,
+                drop_last=True,
+            )
+            trn_loader = torch.utils.data.DataLoader(
+                trn_loader.dataset,
+                batch_size=trn_loader.batch_size,
+                shuffle=True,
+                num_workers=trn_loader.num_workers // 2,
+                pin_memory=False,
                 drop_last=True,
             )
             exemplar_iterator = iter(exemplar_loader)
@@ -194,8 +202,7 @@ class Appr(Inc_Learning_Appr):
             self.scheduler.step()
 
     def criterion(self, t, outputs, target, target_r=None, outputs_old=None):
-        batch_size = len(target)
-        replay_size = len(target_r) if target_r is not None else 0
+        batch_size = target.shape[0]
 
         if self.model.is_early_exit():
             ic_weights = self.model.get_ic_weights(
@@ -213,6 +220,7 @@ class Appr(Inc_Learning_Appr):
                     outputs_ic[t][:batch_size], target - self.model.task_offset[t]
                 )
                 if t > 0 and target_r is not None:
+                    replay_size = target_r.shape[0]
                     outputs_old_ic = outputs_old[ic_idx]
 
                     ic_prev = torch.cat(
@@ -253,6 +261,7 @@ class Appr(Inc_Learning_Appr):
             )
 
             if t > 0 and target_r is not None:
+                replay_size = target_r.shape[0]
                 prev = torch.cat(
                     [o[batch_size : batch_size + replay_size] for o in outputs[:t]],
                     dim=1,

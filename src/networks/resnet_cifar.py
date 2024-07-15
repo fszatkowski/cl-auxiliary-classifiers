@@ -1,7 +1,5 @@
 """resnet in pytorch
 
-
-
 [1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun.
 
     Deep Residual Learning for Image Recognition
@@ -9,6 +7,14 @@
 """
 
 import torch.nn as nn
+
+__all__ = [
+    "resnet18_cifar",
+    "resnet34_cifar",
+    "resnet50_cifar",
+    "resnet101_cifar",
+    "resnet152_cifar",
+]
 
 
 class BasicBlock(nn.Module):

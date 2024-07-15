@@ -442,9 +442,13 @@ class Appr(Inc_Learning_Appr):
             loss = self.criterion(
                 t, outputs, targets.to(self.device, non_blocking=True), targets_old
             )
+
             if self.model.is_early_exit():
+                for ic_idx, ic_loss in enumerate(loss):
+                    assert not torch.isnan(ic_loss), f"Loss is NaN at {ic_idx}"
                 loss = sum(loss)
-            assert not torch.isnan(loss), "Loss is NaN"
+            else:
+                assert not torch.isnan(loss), "Loss is NaN"
 
             # Backward
             self.optimizer.zero_grad()

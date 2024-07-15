@@ -312,6 +312,13 @@ def main(argv=None):
 
     # early-exit networks
     parser.add_argument(
+        '--ic-config',
+        default=None,
+        type='str',
+        required=False,
+        help='Configuration name for internal classifiers. If provided, overrides other early exit related args.'
+    )
+    parser.add_argument(
         "--ic-layers",
         default=None,
         type=str,
@@ -529,6 +536,7 @@ def main(argv=None):
     net = LLL_Net(
         init_model,
         remove_existing_head=not args.keep_existing_head,
+        ic_config=args.ic_config,
         ic_layers=args.ic_layers,
         ic_type=args.ic_type,
         input_size=args.input_size,

@@ -8,6 +8,7 @@ from networks.ic_utils import (
     get_sdn_weights,
     register_intermediate_output_hooks,
 )
+from networks.ic_configs import CONFIGS
 
 
 class LLL_Net(nn.Module):
@@ -17,6 +18,7 @@ class LLL_Net(nn.Module):
         self,
         model,
         remove_existing_head=False,
+        ic_config=None,
         ic_type=None,
         ic_layers=None,
         input_size=None,
@@ -52,6 +54,15 @@ class LLL_Net(nn.Module):
                 setattr(self.model, head_var, nn.Sequential())
         else:
             self.out_size = last_layer.out_features
+
+        if ic_config is not None:
+            assert ic_config in CONFIGS, f'IC config {ic_config} not found. Please provide one of {CONFIGS.keys()}'
+            ic_config = CONFIGS[ic_config]
+            ic_type = ic_config["ic_type"]
+            ic_layers = ic_config["ic_layers"]
+            input_size = ic_config["input_size"]
+            ic_weighting = ic_config["ic_weighting"]
+            detach_ics = ic_config["detach_ics"]
 
         if ic_layers is None:
             ic_layers = []
@@ -244,7 +255,7 @@ class LLL_Net(nn.Module):
             return get_sdn_weights(current_epoch, max_epochs, n_ics=len(self.ic_layers))
         elif self.ic_weighting == "uniform":
             return [1.0] * (len(self.ic_layers) + 1)
-        elif self.ic_weighting == "scaled":
+        elif self.ic_weighting == "proportional":
             step = 1 / (len(self.ic_layers) + 2)
             return [step * (i + 1) for i in range(len(self.ic_layers) + 2)]
         else:

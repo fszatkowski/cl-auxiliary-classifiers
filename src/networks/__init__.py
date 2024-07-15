@@ -2,15 +2,8 @@ from torchvision import models
 
 from .lenet import LeNet
 from .resnet32 import resnet32
-from .resnet32_ln import resnet32_ln
-from .resnet32_no_bn import resnet32_no_bn
-from .resnet_cifar import (
-    resnet18_cifar,
-    resnet34_cifar,
-    resnet50_cifar,
-    resnet101_cifar,
-    resnet152_cifar,
-)
+from .convnext_cifar import *
+from .resnet_cifar import *
 from .vggnet import VggNet
 
 # available torchvision models
@@ -55,14 +48,19 @@ tvmodels = [
     "efficientnet_b5",
     "efficientnet_b6",
     "efficientnet_b7",
+    "vit_b_16",
+    "vit_b_32",
+    "vit_l_16",
+    "vit_l_32",
+    "convnext_tiny",
+    "convnext_small",
+    "convnext_base",
+    "convnext_large",
 ]
 
 allmodels = tvmodels + [
-    "resnet18_cifar",
-    "resnet34_cifar",
-    "resnet50_cifar",
-    "resnet101_cifar",
-    "resnet152_cifar",
+    resnet_cifar.__all__,
+    convnext_cifar.__all__,
     "resnet32",
     "LeNet",
     "VggNet",
@@ -91,6 +89,10 @@ def set_tvmodel_head_var(model):
     elif type(model) == models.SqueezeNet:
         model.head_var = "classifier"
     elif type(model) == models.MobileNetV3:
+        model.head_var = "classifier"
+    elif type(model) == models.VisionTransformer:
+        model.head_var = "heads"
+    elif type(model) == models.ConvNeXt:
         model.head_var = "classifier"
     else:
         raise ModuleNotFoundError
