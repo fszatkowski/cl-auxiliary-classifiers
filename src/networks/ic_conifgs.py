@@ -288,4 +288,11 @@ CONFIGS = {
         "ic_weighting": "proportional",
         "detach_ics": False,
     },
+    "test_mnist": {
+        "ic_type": ["standard_conv", "standard_conv", "standard_fc"],
+        "ic_layers": ["conv1", "conv2", "fc1"],
+        "input_size": [1, 28, 28],
+        "ic_weighting": "proportional",
+        "detach_ics": False,
+    },
 }

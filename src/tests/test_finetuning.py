@@ -97,16 +97,12 @@ def test_finetuning_with_diff_epochs_first_task():
 
 def test_finetuning_with_early_exits():
     args_line = FAST_LOCAL_TEST_ARGS
-    args_line += " --ic-type standard_conv standard_conv standard_fc"
-    args_line += " --ic-layers conv1 conv2 fc1"
-    args_line += " --input-size 1 28 28"
+    args_line += " --ic-config test_mnist"
     run_main_and_assert(args_line)
 
 
 def test_finetuning_with_exemplars_and_early_exits():
     args_line = FAST_LOCAL_TEST_ARGS
-    args_line += " --ic-type standard_conv standard_conv standard_fc"
-    args_line += " --ic-layers conv1 conv2 fc1"
-    args_line += " --input-size 1 28 28"
+    args_line += " --ic-config test_mnist"
     args_line += " --num-exemplars 200"
     run_main_and_assert(args_line)

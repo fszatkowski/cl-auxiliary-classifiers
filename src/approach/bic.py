@@ -23,6 +23,7 @@ class Appr(Inc_Learning_Appr):
         model,
         device,
         nepochs=100,
+        optimizer_name="sgd",
         lr=0.05,
         lr_min=1e-4,
         lr_factor=3,
@@ -37,37 +38,44 @@ class Appr(Inc_Learning_Appr):
         logger=None,
         exemplars_dataset=None,
         scheduler_milestones=None,
+        scheduler_name="multistep",
         val_exemplar_percentage=0.1,
         num_bias_epochs=200,
         T=2,
         lamb=-1,
+        lamb_warmup=None,
     ):
         # Sec. 6.1. CIFAR-100: 2,000 exemplars, ImageNet-1000: 20,000 exemplars, Celeb-10000: 50,000 exemplars
         # Sec. 6.2. weight decay for CIFAR-100 is 0.0002, for ImageNet-1000 and Celeb-10000 is 0.0001
         super(Appr, self).__init__(
-            model,
-            device,
-            nepochs,
-            lr,
-            lr_min,
-            lr_factor,
-            lr_patience,
-            clipgrad,
-            momentum,
-            wd,
-            multi_softmax,
-            fix_bn,
-            eval_on_train,
-            select_best_model_by_val_loss,
-            logger,
-            exemplars_dataset,
-            scheduler_milestones,
+            model=model,
+            device=device,
+            nepochs=nepochs,
+            optimizer_name=optimizer_name,
+            lr=lr,
+            lr_min=lr_min,
+            lr_factor=lr_factor,
+            lr_patience=lr_patience,
+            clipgrad=clipgrad,
+            momentum=momentum,
+            wd=wd,
+            multi_softmax=multi_softmax,
+            fix_bn=fix_bn,
+            eval_on_train=eval_on_train,
+            select_best_model_by_val_loss=select_best_model_by_val_loss,
+            logger=logger,
+            exemplars_dataset=exemplars_dataset,
+            scheduler_name=scheduler_name,
+            scheduler_milestones=scheduler_milestones,
         )
         self.val_percentage = val_exemplar_percentage
         self.bias_epochs = num_bias_epochs
         self.model_old = None
         self.T = T
         self.lamb = lamb
+        self.lamb_warmup = (
+            lamb_warmup  # TODO get rid of this warmup later if it does not help
+        )
         if self.model.is_early_exit():
             self.bias_layers = torch.nn.ModuleList(
                 [torch.nn.ModuleList([]) for _ in range(len(self.model.ic_layers) + 1)]
@@ -106,6 +114,13 @@ class Appr(Inc_Learning_Appr):
             type=float,
             required=False,
             help="Forgetting-intransigence trade-off (default=%(default)s)",
+        )
+        parser.add_argument(
+            "--lamb-warmup",
+            default=None,
+            type=int,
+            required=False,
+            help="Number of linear warmup steps for KD lamba (default=%(default)s)",
         )
         # Sec. 6.2. "The temperature scalar T in Eq. 1 is set to 2 by following [13,2]."
         parser.add_argument(
@@ -557,11 +572,18 @@ class Appr(Inc_Learning_Appr):
                         torch.cat(outputs[ic_idx], dim=1), targets
                     ) + lamb * loss_dist
                 else:
+                    if self.lamb_warmup is not None:
+                        lamb = (
+                            min(1, (self.current_epoch + 1) / self.lamb_warmup)
+                            * self.lamb
+                        )
+                    else:
+                        lamb = self.lamb
                     loss = (
                         torch.nn.functional.cross_entropy(
                             torch.cat(outputs[ic_idx], dim=1), targets
                         )
-                        + self.lamb * loss_dist
+                        + lamb * loss_dist
                     )
                 losses.append(loss * ic_weights[ic_idx])
             return losses
@@ -584,11 +606,17 @@ class Appr(Inc_Learning_Appr):
                     torch.cat(outputs, dim=1), targets
                 ) + lamb * loss_dist
             else:
+                if self.lamb_warmup is not None:
+                    lamb = (
+                        min(1, (self.current_epoch + 1) / self.lamb_warmup) * self.lamb
+                    )
+                else:
+                    lamb = self.lamb
                 return (
                     torch.nn.functional.cross_entropy(
                         torch.cat(outputs, dim=1), targets
                     )
-                    + self.lamb * loss_dist
+                    + lamb * loss_dist
                 )
 
     def ee_net(self, exit_layer: Optional[int] = None) -> torch.nn.Module:

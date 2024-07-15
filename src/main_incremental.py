@@ -231,11 +231,23 @@ def main(argv=None):
         help="Number of epochs per training session (default=%(default)s)",
     )
     parser.add_argument(
+        "--optimizer-name",
+        default="sgd",
+        type=str,
+        help="Optimizer name (default=%(default)s)",
+    )
+    parser.add_argument(
         "--lr",
         default=0.1,
         type=float,
         required=False,
         help="Starting learning rate (default=%(default)s)",
+    )
+    parser.add_argument(
+        "--scheduler-name",
+        default="mulitstep",
+        type=str,
+        help="Learning rate scheduler name (default=%(default)s)",
     )
     parser.add_argument(
         "--scheduler-milestones",

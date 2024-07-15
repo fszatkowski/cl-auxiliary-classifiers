@@ -21,6 +21,7 @@ class Inc_Learning_Appr:
         model,
         device,
         nepochs=100,
+        optimizer_name="sgd",
         lr=0.05,
         lr_min=1e-4,
         lr_factor=3,
@@ -34,12 +35,14 @@ class Inc_Learning_Appr:
         select_best_model_by_val_loss=True,
         logger: ExperimentLogger = None,
         exemplars_dataset: ExemplarsDataset = None,
+        scheduler_name="multistep",
         scheduler_milestones=None,
         no_learning=False,
     ):
         self.model = model
         self.device = device
         self.nepochs = nepochs
+        self.optimizer_name = optimizer_name
         self.lr = lr
         self.lr_min = lr_min
         self.lr_factor = lr_factor
@@ -54,6 +57,7 @@ class Inc_Learning_Appr:
         self.eval_on_train = eval_on_train
         self.select_best_model_by_val_loss = select_best_model_by_val_loss
         self.optimizer = None
+        self.scheduler_name = scheduler_name
         self.scheduler_milestones = scheduler_milestones
         self.scheduler = None
         self.debug = False
@@ -89,19 +93,29 @@ class Inc_Learning_Appr:
             params = base_params + head_params
         else:
             params = list(self.model.parameters())
-        return torch.optim.SGD(
-            params,
-            lr=self.lr,
-            weight_decay=self.wd,
-            momentum=self.momentum,
-        )
+        if self.optimizer_name == "sgd":
+            return torch.optim.SGD(
+                params,
+                lr=self.lr,
+                weight_decay=self.wd,
+                momentum=self.momentum,
+            )
+        elif self.optimizer_name == "adamw":
+            return torch.optim.AdamW(params, lr=self.lr, weight_decay=self.wd)
+        else:
+            raise NotImplementedError(f"Unknown optimizer: {self.optimizer_name}")
 
     def _get_scheduler(self):
-        if self.scheduler_milestones is not None:
+        if self.scheduler_name == "multistep":
             return torch.optim.lr_scheduler.MultiStepLR(
                 optimizer=self.optimizer,
                 milestones=self.scheduler_milestones,
                 gamma=0.1,
+            )
+        elif self.scheduler_name == "cosine":
+            return torch.optim.lr_scheduler.CosineAnnealingLR(
+                optimizer=self.optimizer,
+                T_max=self.nepochs,
             )
         else:
             return None

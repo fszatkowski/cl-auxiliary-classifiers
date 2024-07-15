@@ -24,6 +24,7 @@ class Appr(Inc_Learning_Appr):
         model,
         device,
         nepochs=60,
+        optimizer_name="sgd",
         lr=0.5,
         lr_min=1e-4,
         lr_factor=3,
@@ -37,29 +38,32 @@ class Appr(Inc_Learning_Appr):
         select_best_model_by_val_loss=True,
         logger=None,
         exemplars_dataset=None,
+        scheduler_name="multistep",
         scheduler_milestones=None,
         lamb=1,
         logit_conversion="inverse",
         ic_pooling="none",
     ):
         super(Appr, self).__init__(
-            model,
-            device,
-            nepochs,
-            lr,
-            lr_min,
-            lr_factor,
-            lr_patience,
-            clipgrad,
-            momentum,
-            wd,
-            multi_softmax,
-            fix_bn,
-            eval_on_train,
-            select_best_model_by_val_loss,
-            logger,
-            exemplars_dataset,
-            scheduler_milestones,
+            model=model,
+            device=device,
+            nepochs=nepochs,
+            optimizer_name=optimizer_name,
+            lr=lr,
+            lr_min=lr_min,
+            lr_factor=lr_factor,
+            lr_patience=lr_patience,
+            clipgrad=clipgrad,
+            momentum=momentum,
+            wd=wd,
+            multi_softmax=multi_softmax,
+            fix_bn=fix_bn,
+            eval_on_train=eval_on_train,
+            select_best_model_by_val_loss=select_best_model_by_val_loss,
+            logger=logger,
+            exemplars_dataset=exemplars_dataset,
+            scheduler_name=scheduler_name,
+            scheduler_milestones=scheduler_milestones,
         )
         self.model_old = None
         self.lamb = lamb
@@ -476,7 +480,7 @@ class iCaRLModelWrapper(torch.nn.Module):
         # TODO do these logits make sense?
         if self.logit_conversion == "inverse":
             logits = 1 / (dists + 10e-6)
-        if self.logit_conversion == "reverse":
+        elif self.logit_conversion == "reverse":
             logits = -dists
         elif self.logit_conversion == "pdf":
             logits = self.pdf_logits(dists)
