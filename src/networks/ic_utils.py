@@ -12,29 +12,15 @@ def create_ic(ic_type: str, ic_input_size: Tuple[int, ...], num_outputs: int):
         return StandardCascadingConvHead(ic_input_size, num_outputs)
     elif ic_type == "adaptive_standard_conv":
         return AdaptiveStandardConvHead(ic_input_size, num_outputs)
-    elif ic_type == "basic_conv":
-        return BasicConvHead(ic_input_size, num_outputs)
     elif ic_type == "standard_fc":
         num_ic_features = math.prod(ic_input_size)
         return nn.Linear(num_ic_features, num_outputs)
+    elif ic_type == "standard_transformer":
+        return StandardTransformerHead(ic_input_size, num_outputs)
+    elif ic_type == "ln_transformer":
+        return LNTransformerHead(ic_input_size, num_outputs)
     else:
         raise NotImplementedError()
-
-
-class BasicConvHead(nn.Module):
-    def __init__(self, input_features: Tuple[int, ...], num_classes: int):
-        super().__init__()
-        self.maxpool = nn.MaxPool2d(kernel_size=2)
-        num_input_features = math.prod(input_features)
-        self.classifier = nn.Linear(num_input_features // 4, num_classes)
-
-    def forward(self, x, return_features=False):
-        pool_output = self.maxpool(x)
-        cls_output = self.classifier(pool_output.view(pool_output.size(0), -1))
-        if return_features:
-            return cls_output, pool_output
-        else:
-            return cls_output
 
 
 class AdaptiveStandardConvHead(nn.Module):
@@ -94,6 +80,60 @@ class StandardCascadingConvHead(nn.Module):
             return cls_output, pool_output
         else:
             return cls_output
+
+
+class StandardTransformerHead(nn.Module):
+    def __init__(self, input_features: Tuple[int, ...], num_classes: int):
+        # Transformer head with CLS token pooling, layer norm and classifier
+        super().__init__()
+        assert (
+            len(input_features) == 3
+        )  # assert [batch_size,num_tokens, hidden_dim] shape
+        input_features = input_features[2]
+        self.classifier = nn.Linear(input_features, num_classes)
+
+    def forward(self, x, return_features=False):
+        assert len(x.shape) == 3  # Assert [batch_size, hidden_dim, num_tokens] shape
+        cls_input = x[:, 0, :]  # Only use CLS token features for classification
+        cls_output = self.classifier(cls_input)
+        if return_features:
+            return cls_output, cls_input
+        else:
+            return cls_output
+
+
+class LNTransformerHead(nn.Module):
+    def __init__(self, input_features: Tuple[int, ...], num_classes: int):
+        # Transformer head with CLS token pooling, layer norm and classifier
+        super().__init__()
+        assert (
+            len(input_features) == 3
+        )  # assert [batch_size,num_tokens, hidden_dim] shape
+        input_features = input_features[2]
+        self.ln = nn.LayerNorm(input_features)
+        self.classifier = nn.Linear(input_features, num_classes)
+
+    def forward(self, x, return_features=False):
+        assert len(x.shape) == 3  # Assert [batch_size, hidden_dim, num_tokens] shape
+        cls_input = self.ln(
+            x[:, 0, :]
+        )  # Only use CLS token features for classification
+        cls_output = self.classifier(cls_input)
+        if return_features:
+            return cls_output, cls_input
+        else:
+            return cls_output
+
+
+def forward(self, x, prev_out, return_features=False):
+    pool_output = self.alpha * self.maxpool(x) + (1 - self.alpha) * self.avgpool(x)
+    cls_input = pool_output.view(pool_output.size(0), -1)
+    cls_input = torch.cat([cls_input, prev_out.view(prev_out.size(0), -1)], dim=1)
+    cls_output = self.classifier(cls_input)
+    if return_features:
+        return cls_output, pool_output
+    else:
+        return cls_output
 
 
 def get_sdn_weights(current_epoch, total_epochs, n_ics):
