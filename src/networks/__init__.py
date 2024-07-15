@@ -1,8 +1,8 @@
 from torchvision import models
 
+from .convnext_cifar import *
 from .lenet import LeNet
 from .resnet32 import resnet32
-from .convnext_cifar import *
 from .resnet_cifar import *
 from .vggnet import VggNet
 

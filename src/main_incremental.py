@@ -24,6 +24,7 @@ load_dotenv(find_dotenv())
 torch.multiprocessing.set_sharing_strategy("file_system")
 torch.set_num_threads(1)
 
+
 def main(argv=None):
     tstart = time.time()
     # Arguments
@@ -312,11 +313,11 @@ def main(argv=None):
 
     # early-exit networks
     parser.add_argument(
-        '--ic-config',
+        "--ic-config",
         default=None,
-        type='str',
+        type=str,
         required=False,
-        help='Configuration name for internal classifiers. If provided, overrides other early exit related args.'
+        help="Configuration name for internal classifiers. If provided, overrides other early exit related args.",
     )
     parser.add_argument(
         "--ic-layers",

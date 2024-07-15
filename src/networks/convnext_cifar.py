@@ -1,6 +1,7 @@
 from functools import partial
-from torch import nn
+
 import torch
+from torch import nn
 
 __all__ = [
     "convnext_base_cifar",
@@ -72,7 +73,7 @@ class Stage(nn.Sequential):
 
 class ConvNeXtBody(nn.Sequential):
     def __init__(
-            self, in_channels, channel_list, num_blocks_list, kernel_size, p_drop=0.0
+        self, in_channels, channel_list, num_blocks_list, kernel_size, p_drop=0.0
     ):
         layers = []
         for out_channels, num_blocks in zip(channel_list, num_blocks_list):
@@ -103,16 +104,16 @@ class Stem(nn.Sequential):
 
 class ConvNeXt(nn.Module):
     def __init__(
-            self,
-            classes,
-            channel_list,
-            num_blocks_list,
-            kernel_size,
-            patch_size,
-            in_channels=3,
-            res_p_drop=0.0,
-            *args,
-            **kwargs,
+        self,
+        classes,
+        channel_list,
+        num_blocks_list,
+        kernel_size,
+        patch_size,
+        in_channels=3,
+        res_p_drop=0.0,
+        *args,
+        **kwargs,
     ):
         super().__init__()
         self.stem = Stem(in_channels, channel_list[0], patch_size)

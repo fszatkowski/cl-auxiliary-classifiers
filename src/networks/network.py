@@ -3,12 +3,12 @@ from copy import deepcopy
 import torch
 from torch import nn
 
+from networks.ic_conifgs import CONFIGS
 from networks.ic_utils import (
     create_ic,
     get_sdn_weights,
     register_intermediate_output_hooks,
 )
-from networks.ic_configs import CONFIGS
 
 
 class LLL_Net(nn.Module):
@@ -56,7 +56,9 @@ class LLL_Net(nn.Module):
             self.out_size = last_layer.out_features
 
         if ic_config is not None:
-            assert ic_config in CONFIGS, f'IC config {ic_config} not found. Please provide one of {CONFIGS.keys()}'
+            assert (
+                ic_config in CONFIGS
+            ), f"IC config {ic_config} not found. Please provide one of {CONFIGS.keys()}"
             ic_config = CONFIGS[ic_config]
             ic_type = ic_config["ic_type"]
             ic_layers = ic_config["ic_layers"]
