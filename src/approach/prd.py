@@ -258,20 +258,27 @@ class Appr(Inc_Learning_Appr):
         )
         prototypes_params = list(self.prototypes.parameters())
 
-        return torch.optim.SGD(
-            [
-                {"params": base_params},
-                {
-                    "params": prototypes_params,
-                    "lr": self.prototypes_lr,
-                    "momentum": 0.0,
-                    "weight_decay": 0.0,
-                },
-            ],
-            lr=self.lr,
-            weight_decay=self.wd,
-            momentum=self.momentum,
-        )
+        params = [
+            {"params": base_params},
+            {
+                "params": prototypes_params,
+                "lr": self.prototypes_lr,
+                "momentum": 0.0,
+                "weight_decay": 0.0,
+            },
+        ]
+
+        if self.optimizer_name == "sgd":
+            return torch.optim.SGD(
+                params,
+                lr=self.lr,
+                weight_decay=self.wd,
+                momentum=self.momentum,
+            )
+        elif self.optimizer_name == "adamw":
+            return torch.optim.AdamW(params, lr=self.lr, weight_decay=self.wd)
+        else:
+            raise NotImplementedError(f"Unknown optimizer: {self.optimizer_name}")
 
     @staticmethod
     def extra_parser(args):
@@ -438,15 +445,14 @@ class Appr(Inc_Learning_Appr):
                     value=float(loss),
                 )
             # Backward
-            if t == 0 or not self.no_learning:
-                self.optimizer.zero_grad()
-                loss.backward()
-                params_to_clip = (
-                    list(self.model.parameters())
-                    + list(self.projection_head.parameters())
-                    + list(self.prototypes.parameters())
-                )
-                torch.nn.utils.clip_grad_norm_(params_to_clip, self.clipgrad)
+            self.optimizer.zero_grad()
+            loss.backward()
+            params_to_clip = (
+                list(self.model.parameters())
+                + list(self.projection_head.parameters())
+                + list(self.prototypes.parameters())
+            )
+            torch.nn.utils.clip_grad_norm_(params_to_clip, self.clipgrad)
             self.optimizer.step()
         if self.scheduler is not None:
             self.scheduler.step()

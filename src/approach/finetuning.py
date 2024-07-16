@@ -32,7 +32,6 @@ class Appr(Inc_Learning_Appr):
         scheduler_milestones=None,
         scheduler_name="multistep",
         all_outputs=False,
-        no_learning=False,
     ):
         super(Appr, self).__init__(
             model=model,
@@ -54,7 +53,6 @@ class Appr(Inc_Learning_Appr):
             exemplars_dataset=exemplars_dataset,
             scheduler_name=scheduler_name,
             scheduler_milestones=scheduler_milestones,
-            no_learning=no_learning,
         )
         self.all_out = all_outputs
 
@@ -71,13 +69,6 @@ class Appr(Inc_Learning_Appr):
             action="store_true",
             required=False,
             help="Allow all weights related to all outputs to be modified (default=%(default)s)",
-        )
-        parser.add_argument(
-            "--no-learning",
-            action="store_true",
-            required=False,
-            help="Do not backpropagate gradients after second task - only do batch norm update "
-            "(default=%(default)s)",
         )
         return parser.parse_known_args(args)
 
@@ -97,12 +88,18 @@ class Appr(Inc_Learning_Appr):
             params = base_params + head_params
         else:
             params = list(self.model.parameters())
-        return torch.optim.SGD(
-            params,
-            lr=self.lr,
-            weight_decay=self.wd,
-            momentum=self.momentum,
-        )
+
+        if self.optimizer_name == "sgd":
+            return torch.optim.SGD(
+                params,
+                lr=self.lr,
+                weight_decay=self.wd,
+                momentum=self.momentum,
+            )
+        elif self.optimizer_name == "adamw":
+            return torch.optim.AdamW(params, lr=self.lr, weight_decay=self.wd)
+        else:
+            raise NotImplementedError(f"Unknown optimizer: {self.optimizer_name}")
 
     def train_loop(self, t, trn_loader, val_loader):
         """Contains the epochs loop"""

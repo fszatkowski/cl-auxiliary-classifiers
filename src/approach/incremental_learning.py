@@ -37,7 +37,6 @@ class Inc_Learning_Appr:
         exemplars_dataset: ExemplarsDataset = None,
         scheduler_name="multistep",
         scheduler_milestones=None,
-        no_learning=False,
     ):
         self.model = model
         self.device = device
@@ -61,7 +60,6 @@ class Inc_Learning_Appr:
         self.scheduler_milestones = scheduler_milestones
         self.scheduler = None
         self.debug = False
-        self.no_learning = no_learning
         self.current_epoch = 0
 
     @staticmethod
@@ -93,6 +91,7 @@ class Inc_Learning_Appr:
             params = base_params + head_params
         else:
             params = list(self.model.parameters())
+
         if self.optimizer_name == "sgd":
             return torch.optim.SGD(
                 params,
@@ -248,10 +247,9 @@ class Inc_Learning_Appr:
             if self.model.is_early_exit():
                 loss = sum(loss)
             # Backward
-            if t == 0 or not self.no_learning:
-                self.optimizer.zero_grad()
-                loss.backward()
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clipgrad)
+            self.optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clipgrad)
             self.optimizer.step()
         if self.scheduler is not None:
             self.scheduler.step()

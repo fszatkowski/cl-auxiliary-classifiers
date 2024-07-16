@@ -1,6 +1,12 @@
 from os.path import join
+from pathlib import Path
 
-_DATASET_DIR_SHARED = "/data/SHARE/datasets"
+if Path("/data/SHARE/datasets").exists():
+    _DATASET_DIR_SHARED = "/data/SHARE/datasets"
+elif Path("/net/tscratch/people/plgfszatkowski/datasets").exists():
+    _DATASET_DIR_SHARED = "/net/tscratch/people/plgfszatkowski/datasets"
+else:
+    _DATASET_DIR_SHARED = "???"
 _DATASET_DIR_LOCAL = "data"
 
 dataset_config = {

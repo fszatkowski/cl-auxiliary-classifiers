@@ -77,10 +77,9 @@ class Appr(Inc_Learning_Appr):
             self.exemplars_dataset.max_num_exemplars
             + self.exemplars_dataset.max_num_exemplars_per_class
         )
-        if not have_exemplars:
-            warnings.warn(
-                "Warning: SS-IL is expected to use exemplars. Check documentation."
-            )
+        assert (
+            have_exemplars
+        ), "Warning: SS-IL is expected to use exemplars. Check documentation."
 
     @staticmethod
     def exemplars_dataset_class():
@@ -116,9 +115,18 @@ class Appr(Inc_Learning_Appr):
 
     def _get_optimizer(self):
         params = self.model.parameters()
-        return torch.optim.SGD(
-            params, lr=self.lr, weight_decay=self.wd, momentum=self.momentum
-        )
+
+        if self.optimizer_name == "sgd":
+            return torch.optim.SGD(
+                params,
+                lr=self.lr,
+                weight_decay=self.wd,
+                momentum=self.momentum,
+            )
+        elif self.optimizer_name == "adamw":
+            return torch.optim.AdamW(params, lr=self.lr, weight_decay=self.wd)
+        else:
+            raise NotImplementedError(f"Unknown optimizer: {self.optimizer_name}")
 
     def train_loop(self, t, trn_loader, val_loader):
         """Contains the epochs loop"""

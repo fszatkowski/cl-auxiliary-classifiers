@@ -171,12 +171,18 @@ class Appr(Inc_Learning_Appr):
             params = base_params + head_params
         else:
             params = list(self.model.parameters())
-        return torch.optim.SGD(
-            params,
-            lr=self.lr,
-            weight_decay=self.wd,
-            momentum=self.momentum,
-        )
+
+        if self.optimizer_name == "sgd":
+            return torch.optim.SGD(
+                params,
+                lr=self.lr,
+                weight_decay=self.wd,
+                momentum=self.momentum,
+            )
+        elif self.optimizer_name == "adamw":
+            return torch.optim.AdamW(params, lr=self.lr, weight_decay=self.wd)
+        else:
+            raise NotImplementedError(f"Unknown optimizer: {self.optimizer_name}")
 
     def pre_train_process(self, t, trn_loader):
         """Runs before training all epochs of the task (before the train session)"""

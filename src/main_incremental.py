@@ -389,6 +389,7 @@ def main(argv=None):
     args.results_path = os.path.expanduser(args.results_path)
     base_kwargs = dict(
         nepochs=args.nepochs,
+        optimizer_name=args.optimizer_name,
         lr=args.lr,
         lr_min=args.lr_min,
         lr_factor=args.lr_factor,
@@ -400,6 +401,7 @@ def main(argv=None):
         fix_bn=args.fix_bn,
         eval_on_train=args.eval_on_train,
         select_best_model_by_val_loss=True,
+        scheduler_name=args.scheduler_name,
         scheduler_milestones=args.scheduler_milestones,
     )
 
