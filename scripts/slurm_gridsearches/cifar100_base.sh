@@ -74,6 +74,10 @@ for seed in 0; do
         alpha=0.5
         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ewc.sh ${num_tasks} ${seed} ${lamb} ${alpha}
 
+        # ER
+        num_exemplars=2000
+        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/er.sh ${num_tasks} ${seed} ${num_exemplars}
+
         # FT
         num_exemplars=0
         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ft.sh ${num_tasks} ${seed} ${num_exemplars}
