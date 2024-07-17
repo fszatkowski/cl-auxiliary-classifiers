@@ -254,14 +254,19 @@ class LLL_Net(nn.Module):
 
     def get_ic_weights(self, current_epoch, max_epochs):
         if self.ic_weighting == "sdn":
-            return get_sdn_weights(current_epoch, max_epochs, n_ics=len(self.ic_layers))
+            weights = get_sdn_weights(
+                current_epoch, max_epochs, n_ics=len(self.ic_layers)
+            )
         elif self.ic_weighting == "uniform":
-            return [1.0] * (len(self.ic_layers) + 1)
+            weights = [1.0] * (len(self.ic_layers) + 1)
         elif self.ic_weighting == "proportional":
-            step = 1 / (len(self.ic_layers) + 2)
-            return [step * (i + 1) for i in range(len(self.ic_layers) + 2)]
+            step = 1 / (len(self.ic_layers) + 1)
+            weights = [step * (i + 1) for i in range(len(self.ic_layers) + 1)]
         else:
-            raise NotImplementedError()
+            raise NotImplementedError("Unknown IC weighting: " + self.ic_weighting)
+
+        assert len(weights) == len(self.ic_layers) + 1
+        return weights
 
     def set_exit_layer(self, layer_idx: int):
         self.exit_layer_idx = layer_idx

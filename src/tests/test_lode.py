@@ -11,16 +11,16 @@ FAST_LOCAL_TEST_ARGS = (
 )
 
 
-def test_er():
+def test_lode():
     args_line = FAST_LOCAL_TEST_ARGS
-    args_line += " --approach er"
+    args_line += " --approach lode"
     args_line += " --num-exemplars 200"
     run_main_and_assert(args_line)
 
 
-def test_er_with_early_exits():
+def test_lode_with_early_exits():
     args_line = FAST_LOCAL_TEST_ARGS
-    args_line += " --approach er"
+    args_line += " --approach lode"
     args_line += " --num-exemplars 200"
     args_line += " --ic-config test_mnist"
     run_main_and_assert(args_line)

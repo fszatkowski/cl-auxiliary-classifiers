@@ -21,6 +21,7 @@ approach='ssil'
 
 python src/main_incremental.py \
     --gpu 0 \
+    --num-workers 0 \
     --seed ${seed} \
     --network resnet32 \
     --ic-config ${ic_config} \

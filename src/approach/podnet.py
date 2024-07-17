@@ -102,16 +102,13 @@ class Appr(Inc_Learning_Appr):
         self._n_classes = 0
         self._task_size = 0
 
-        # LUCIR is expected to be used with exemplars. If needed to be used without exemplars, overwrite here the
-        # `_get_optimizer` function with the one in LwF and update the criterion
         have_exemplars = (
             self.exemplars_dataset.max_num_exemplars
             + self.exemplars_dataset.max_num_exemplars_per_class
         )
-        if not have_exemplars:
-            warnings.warn(
-                "Warning: LUCIR is expected to use exemplars. Check documentation."
-            )
+        assert (
+            have_exemplars
+        ), "Warning: PODNET is expected to use exemplars. Check documentation."
 
     @staticmethod
     def exemplars_dataset_class():

@@ -63,7 +63,7 @@ class Appr(Inc_Learning_Appr):
         )
         assert (
             have_exemplars
-        ), "Warning: SS-IL is expected to use exemplars. Check documentation."
+        ), "Warning: ER is expected to use exemplars. Check documentation."
 
     @staticmethod
     def exemplars_dataset_class():
@@ -110,10 +110,12 @@ class Appr(Inc_Learning_Appr):
                 pin_memory=trn_loader.pin_memory,
             )
 
+            org_batch_size = trn_loader.batch_size
             # Lower the batch size for replay
+            # TODO check if it is correct to make the batch size half
             trn_loader = torch.utils.data.DataLoader(
-                trn_loader.dataset + self.exemplars_dataset,
-                batch_size=trn_loader.batch_size // 2,
+                trn_loader.dataset,
+                batch_size=org_batch_size // 2,
                 shuffle=True,
                 num_workers=trn_loader.num_workers,
                 pin_memory=trn_loader.pin_memory,
@@ -121,7 +123,7 @@ class Appr(Inc_Learning_Appr):
             )
             self.memory_loader = torch.utils.data.DataLoader(
                 self.exemplars_dataset,
-                batch_size=trn_loader.batch_size // 2,
+                batch_size=org_batch_size // 2,
                 shuffle=True,
                 num_workers=trn_loader.num_workers,
                 pin_memory=trn_loader.pin_memory,
@@ -147,24 +149,24 @@ class Appr(Inc_Learning_Appr):
         if t > 0:
             memory_iterator = iter(self.memory_loader)
 
-        for images_cur, targets_cur in trn_loader:
-            images_cur = images_cur.to(self.device, non_blocking=True)
-            targets_cur = targets_cur.to(self.device, non_blocking=True)
+        for images, targets in trn_loader:
+            images = images.to(self.device, non_blocking=True)
+            targets = targets.to(self.device, non_blocking=True)
 
             if t > 0:
                 try:
-                    images_replay, targets_replay = next(memory_iterator)
+                    replay_images, replay_targets = next(memory_iterator)
                 except StopIteration:
                     memory_iterator = iter(self.memory_loader)
-                    images_replay, targets_replay = next(memory_iterator)
-                images_replay = images_replay.to(self.device, non_blocking=True)
-                targets_replay = targets_replay.to(self.device, non_blocking=True)
-                images_cur = torch.cat((images_cur, images_replay), dim=0)
-                targets_cur = torch.cat((targets_cur, targets_replay), dim=0)
+                    replay_images, replay_targets = next(memory_iterator)
+                replay_images = replay_images.to(self.device, non_blocking=True)
+                replay_targets = replay_targets.to(self.device, non_blocking=True)
+                images = torch.cat((images, replay_images), dim=0)
+                targets = torch.cat((targets, replay_targets), dim=0)
 
             # Forward current model
-            outputs = self.model(images_cur)
-            loss = self.criterion(t, outputs, targets_cur)
+            outputs = self.model(images)
+            loss = self.criterion(t, outputs, targets)
             if self.model.is_early_exit():
                 loss = sum(loss)
 
@@ -184,29 +186,14 @@ class Appr(Inc_Learning_Appr):
             )
             loss = []
             for ic_outputs, ic_weight in zip(outputs, ic_weights):
-                if self.all_out or len(self.exemplars_dataset) > 0:
-                    loss.append(
-                        ic_weight
-                        * torch.nn.functional.cross_entropy(
-                            torch.cat(ic_outputs, dim=1), targets
-                        )
+                loss.append(
+                    ic_weight
+                    * torch.nn.functional.cross_entropy(
+                        torch.cat(ic_outputs, dim=1), targets
                     )
-                else:
-                    loss.append(
-                        ic_weight
-                        * torch.nn.functional.cross_entropy(
-                            ic_outputs[t], targets - self.model.task_offset[t]
-                        )
-                    )
+                )
             assert len(loss) == len(self.model.ic_layers) + 1
         else:
             """Returns the loss value"""
-            if self.all_out or len(self.exemplars_dataset) > 0:
-                loss = torch.nn.functional.cross_entropy(
-                    torch.cat(outputs, dim=1), targets
-                )
-            else:
-                loss = torch.nn.functional.cross_entropy(
-                    outputs[t], targets - self.model.task_offset[t]
-                )
+            loss = torch.nn.functional.cross_entropy(torch.cat(outputs, dim=1), targets)
         return loss

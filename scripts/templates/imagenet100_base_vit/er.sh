@@ -19,6 +19,7 @@ approach='er'
 
 python src/main_incremental.py \
     --gpu 0 \
+    --num-workers 0 \
     --seed ${seed} \
     --network vit_b_16 \
     --scheduler-name cosine \

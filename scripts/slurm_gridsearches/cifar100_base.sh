@@ -54,20 +54,20 @@ for seed in 0; do
 
         # BiC
         num_exemplars=2000
-        lamb=-1
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        lamb=0.5
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        lamb=1
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        #         lamb=-1
+        #         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        #         lamb=0.5
+        #         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        #         lamb=1
+        #         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
         lamb=2
         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
         lamb=3
         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        lamb=4
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        lamb=5
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        #         lamb=4
+        #         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        #         lamb=5
+        #         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
 
         # EWC
         lamb=10000
@@ -92,6 +92,10 @@ for seed in 0; do
 
         # iCaRL TODO
 
+        # LODE
+        num_exemplars=2000
+        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars}
+
         # LWF
         lamb=0.25
         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/lwf.sh ${num_tasks} ${seed} ${lamb}
@@ -112,17 +116,17 @@ for seed in 0; do
         # SSIL
         num_exemplars=2000
         lamb=0.25
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/lwf.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ssil.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
         lamb=0.5
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/lwf.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        lamb=0.75
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/lwf.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        lamb=1.0
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/lwf.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        lamb=1.5
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/lwf.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        lamb=2.0
-        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/lwf.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ssil.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        #         lamb=0.75
+        #         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ssil.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        #         lamb=1.0
+        #         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ssil.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        #         lamb=1.5
+        #         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ssil.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        #         lamb=2.0
+        #         sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ssil.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
 
     done
 done

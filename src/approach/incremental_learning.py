@@ -116,8 +116,12 @@ class Inc_Learning_Appr:
                 optimizer=self.optimizer,
                 T_max=self.nepochs,
             )
+        elif self.scheduler_name == "constant":
+            return torch.optim.lr_scheduler.ConstantLR(optimizer=self.optimizer)
         else:
-            return None
+            raise NotImplementedError(
+                "Unknown scheduler: {}".format(self.scheduler_name)
+            )
 
     def train(self, t, trn_loader, val_loader):
         """Main train structure"""

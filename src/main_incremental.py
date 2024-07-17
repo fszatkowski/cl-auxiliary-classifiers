@@ -245,7 +245,7 @@ def main(argv=None):
     )
     parser.add_argument(
         "--scheduler-name",
-        default="mulitstep",
+        default="multistep",
         type=str,
         help="Learning rate scheduler name (default=%(default)s)",
     )

@@ -34,7 +34,6 @@ python src/main_incremental.py \
     --approach ${approach} \
     --taskwise-kd \
     --lamb ${lamb} \
-    --lamb-a ${lamb_a} \
     --results-path ./results/ImageNet100x${num_tasks}/${approach}_vit_tw_lamb_${lamb}_${ic_config}/seed${seed} \
     --log disk wandb \
     --exp-name ${tag} \
