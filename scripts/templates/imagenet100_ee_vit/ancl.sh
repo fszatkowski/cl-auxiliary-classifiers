@@ -39,7 +39,6 @@ python src/main_incremental.py \
     --lamb-a ${lamb_a} \
     --results-path ./results/ImageNet100x${num_tasks}/${approach}_vit_tw_ex_${num_exemplars}_lamb_${lamb}_lamb_a_${lamb_a}_${ic_config}/seed${seed} \
     --log disk wandb \
-    --exp-name ${tag} \
     --save-models \
     --tags ${tag}
 

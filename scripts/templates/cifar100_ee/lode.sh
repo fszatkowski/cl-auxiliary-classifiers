@@ -9,7 +9,9 @@
 num_tasks=$1
 seed=$2
 num_exemplars=$3
-ic_config=$4
+const=$4
+ro=$5
+ic_config=$6
 
 eval "$(conda shell.bash hook)"
 conda activate FACIL
@@ -32,8 +34,9 @@ python src/main_incremental.py \
     --batch-size 128 \
     --lr 0.1 \
     --approach ${approach} \
+    --const ${const} \
+    --ro ${ro} \
     --log disk wandb \
-    --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_${ic_config}/seed${seed} \
-    --exp-name ${tag} \
+    --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_c_${const}_ro_${ro}_${ic_config}/seed${seed} \
     --save-models \
     --tags ${tag}

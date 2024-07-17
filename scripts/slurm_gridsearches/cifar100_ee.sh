@@ -4,52 +4,51 @@ set -e
 
 for seed in 0; do
     for num_tasks in 5 10; do
-        #         for ic_config in cifar100_resnet32_sdn cifar100_resnet32_prop cifar100_resnet32_dense cifar100_resnet32_dense_2x; do
         for ic_config in cifar100_resnet32_sdn cifar100_resnet32_dense; do
             # ANCL
             num_exemplars=0
+            #             lamb=1.0
+            #             lamb_a=1.0
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=2.0
+            #             lamb_a=2.0
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=0.5
+            #             lamb_a=0.5
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
             lamb=1.0
-            lamb_a=1.0
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=2.0
             lamb_a=2.0
             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=0.5
-            lamb_a=0.5
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=1.0
-            lamb_a=2.0
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=2.0
-            lamb_a=1.0
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=1.0
-            lamb_a=0.5
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=0.5
-            lamb_a=1.0
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=2.0
+            #             lamb_a=1.0
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=1.0
+            #             lamb_a=0.5
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=0.5
+            #             lamb_a=1.0
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
 
             # ANCL+Ex
             num_exemplars=2000
-            lamb=1.0
-            lamb_a=1.0
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=2.0
-            lamb_a=2.0
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=0.5
-            lamb_a=0.5
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=1.0
-            lamb_a=2.0
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=2.0
-            lamb_a=1.0
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
-            lamb=1.0
-            lamb_a=0.5
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=1.0
+            #             lamb_a=1.0
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=2.0
+            #             lamb_a=2.0
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=0.5
+            #             lamb_a=0.5
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=1.0
+            #             lamb_a=2.0
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=2.0
+            #             lamb_a=1.0
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
+            #             lamb=1.0
+            #             lamb_a=0.5
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
             lamb=0.5
             lamb_a=1.0
             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${ic_config} ${lamb_a}
@@ -96,7 +95,15 @@ for seed in 0; do
 
             # LODE
             num_exemplars=2000
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars}
+            const=1.0
+            ro=0.1
+            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro} ${ic_config}
+            const=1.0
+            ro=0.05
+            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro} ${ic_config}
+            const=1.0
+            ro=0.01
+            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro} ${ic_config}
 
             # LWF
             lamb=0.25
@@ -113,7 +120,7 @@ for seed in 0; do
             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lwf.sh ${num_tasks} ${seed} ${lamb} ${ic_config}
 
             # Joint
-            sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/joint.sh ${num_tasks} ${seed} ${ic_config}
+            #             sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/joint.sh ${num_tasks} ${seed} ${ic_config}
 
             # SSIL
             num_exemplars=2000

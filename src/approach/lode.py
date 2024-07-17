@@ -16,29 +16,29 @@ class Appr(Inc_Learning_Appr):
     """
 
     def __init__(
-        self,
-        model,
-        device,
-        nepochs=100,
-        optimizer_name="sgd",
-        lr=0.05,
-        lr_min=1e-4,
-        lr_factor=3,
-        lr_patience=5,
-        clipgrad=10000,
-        momentum=0,
-        wd=0,
-        multi_softmax=False,
-        fix_bn=False,
-        eval_on_train=False,
-        select_best_model_by_val_loss=True,
-        logger=None,
-        exemplars_dataset=None,
-        scheduler_milestones=None,
-        scheduler_name="multistep",
-        all_outputs=False,
-        c=1.0,
-        ro=1.0,
+            self,
+            model,
+            device,
+            nepochs=100,
+            optimizer_name="sgd",
+            lr=0.05,
+            lr_min=1e-4,
+            lr_factor=3,
+            lr_patience=5,
+            clipgrad=10000,
+            momentum=0,
+            wd=0,
+            multi_softmax=False,
+            fix_bn=False,
+            eval_on_train=False,
+            select_best_model_by_val_loss=True,
+            logger=None,
+            exemplars_dataset=None,
+            scheduler_milestones=None,
+            scheduler_name="multistep",
+            all_outputs=False,
+            const=1.0,
+            ro=1.0,
     ):
         super(Appr, self).__init__(
             model=model,
@@ -64,12 +64,12 @@ class Appr(Inc_Learning_Appr):
         self.memory_loader = None
         self.all_out = all_outputs
 
-        self.c = c
+        self.c = const
         self.ro = ro
 
         have_exemplars = (
-            self.exemplars_dataset.max_num_exemplars
-            + self.exemplars_dataset.max_num_exemplars_per_class
+                self.exemplars_dataset.max_num_exemplars
+                + self.exemplars_dataset.max_num_exemplars_per_class
         )
         assert (
             have_exemplars
@@ -90,7 +90,7 @@ class Appr(Inc_Learning_Appr):
             help="Allow all weights related to all outputs to be modified (default=%(default)s)",
         )
         parser.add_argument(
-            "--c",
+            "--const",
             type=float,
             default=1.0,
             help="C hyperparamter from Eq. 5 in the paper (default=%(default)s)",
@@ -98,7 +98,7 @@ class Appr(Inc_Learning_Appr):
         parser.add_argument(
             "--ro",
             type=float,
-            default=1.0,
+            default=0.1,
             help="ro hyperparamter from Eq. 5 in the paper (default=%(default)s)",
         )
         return parser.parse_known_args(args)
@@ -236,44 +236,37 @@ class Appr(Inc_Learning_Appr):
         return pre
 
     def inter_cls(self, logits, y, classes1, classes2):
-        # TODO this is just standard cross entropy computed only for last head?
         logits = torch.cat(logits, dim=1)
         inter_logits = self.logmeanexp_previous(logits, classes1, classes2, dim=-1)
         inter_y = torch.ones_like(y)
         return F.cross_entropy(inter_logits, inter_y, reduction="none")
 
-    def intra_cls(self, logits, y, classes):
-        logits = torch.cat(logits, dim=1)
-        mask = torch.zeros_like(logits)
-        mask[:, classes] = 1
-        logits1 = logits - (1 - mask) * 1e9
-        return F.cross_entropy(logits1, y, reduction="none")
-
     def single_head_lode_loss(
-        self,
-        t,
-        outputs_new,
-        targets_new,
-        outputs_old,
-        targets_old,
-        classes_new,
-        classes_old,
+            self,
+            t,
+            outputs_new,
+            targets_new,
+            outputs_old,
+            targets_old,
+            classes_new,
+            classes_old,
     ):
+        ce_new = F.cross_entropy(outputs_new[t], targets_new - self.model.task_offset[t])
+
         new_inter_cls = self.inter_cls(
             outputs_new,
             targets_new,
             classes_old,
             classes_new,
         )
-        new_intra_cls = self.intra_cls(outputs_new, targets_new, classes_new)
+
         # This is ER version of LODE, so replay loss is simple cross entropy on old exemplars
         l_rep = F.cross_entropy(
             torch.cat(outputs_old, dim=1),
             targets_old,
         )
         # TODO does it match eq. 4 exactly?
-        # TODO where do ro and C come into this?
-        total_loss = (0.1 / t) * new_inter_cls.mean() + new_intra_cls.mean() + l_rep
+        total_loss = self.c * ce_new + self.ro * (len(classes_new) / len(classes_old)) * new_inter_cls.mean() + l_rep
         return total_loss
 
     def criterion(self, t, outputs, targets, outputs_old=None, targets_old=None):
