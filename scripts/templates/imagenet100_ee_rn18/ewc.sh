@@ -36,6 +36,6 @@ python src/main_incremental.py \
     --lamb ${lamb} \
     --alpha ${alpha} \
     --log disk wandb \
-    --results-path ./results/ImageNet100x${num_tasks}/${approach}_rn18_lamb_${lamb}_alpha_${alpha}_${ic_config}/seed${seed} \
+    --results-path ./results/ImageNet100x${num_tasks}_rn18/${approach}_lamb_${lamb}_alpha_${alpha}_${ic_config}/seed${seed} \
     --save-models \
     --tags ${tag}

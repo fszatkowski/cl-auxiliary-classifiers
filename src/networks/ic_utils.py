@@ -11,7 +11,17 @@ def create_ic(ic_type: str, ic_input_size: Tuple[int, ...], num_outputs: int):
     elif ic_type == "standard_cascading_conv":
         return StandardCascadingConvHead(ic_input_size, num_outputs)
     elif ic_type == "adaptive_standard_conv":
-        return AdaptiveStandardConvHead(ic_input_size, num_outputs)
+        return AdaptiveStandardConvHead(ic_input_size, num_outputs, 2)
+    elif ic_type == "adaptive_standard_conv_4x":
+        return AdaptiveStandardConvHead(ic_input_size, num_outputs, 4)
+    elif ic_type == "adaptive_standard_conv_8x":
+        return AdaptiveStandardConvHead(ic_input_size, num_outputs, 8)
+    elif ic_type == "downsample_4x_conv":
+        return DownsampleConvHead(ic_input_size, num_outputs, downsample_factor=4)
+    elif ic_type == "downsample_8x_conv":
+        return DownsampleConvHead(ic_input_size, num_outputs, downsample_factor=8)
+    elif ic_type == "downsample_16x_conv":
+        return DownsampleConvHead(ic_input_size, num_outputs, downsample_factor=16)
     elif ic_type == "standard_fc":
         num_ic_features = math.prod(ic_input_size)
         return nn.Linear(num_ic_features, num_outputs)
@@ -24,6 +34,28 @@ def create_ic(ic_type: str, ic_input_size: Tuple[int, ...], num_outputs: int):
 
 
 class AdaptiveStandardConvHead(nn.Module):
+    def __init__(
+        self, input_features: Tuple[int, ...], num_classes: int, downsample_factor: int
+    ):
+        super().__init__()
+        _, c, h, w = input_features
+        h_new = math.ceil(h / downsample_factor)
+        w_new = math.ceil(w / downsample_factor)
+        self.maxpool = nn.AdaptiveMaxPool2d((h_new, w_new))
+        self.avgpool = nn.AdaptiveAvgPool2d((h_new, w_new))
+        self.alpha = nn.Parameter(torch.rand(1))
+        self.classifier = nn.Linear(c * h_new * w_new, num_classes)
+
+    def forward(self, x, return_features=False):
+        pool_output = self.alpha * self.maxpool(x) + (1 - self.alpha) * self.avgpool(x)
+        cls_output = self.classifier(pool_output.view(pool_output.size(0), -1))
+        if return_features:
+            return cls_output, pool_output
+        else:
+            return cls_output
+
+
+class AdaptiveDownsampleConvHead(nn.Module):
     def __init__(self, input_features: Tuple[int, ...], num_classes: int):
         super().__init__()
         _, c, h, w = input_features
@@ -36,6 +68,34 @@ class AdaptiveStandardConvHead(nn.Module):
 
     def forward(self, x, return_features=False):
         pool_output = self.alpha * self.maxpool(x) + (1 - self.alpha) * self.avgpool(x)
+        cls_output = self.classifier(pool_output.view(pool_output.size(0), -1))
+        if return_features:
+            return cls_output, pool_output
+        else:
+            return cls_output
+
+
+class DownsampleConvHead(nn.Module):
+    def __init__(
+        self, input_features: Tuple[int, ...], num_classes: int, downsample_factor: int
+    ):
+        super().__init__()
+        self.maxpool = nn.MaxPool2d(kernel_size=2)
+        self.avgpool = nn.AvgPool2d(kernel_size=2)
+        self.alpha = nn.Parameter(torch.rand(1))
+        num_input_features = math.prod(input_features)
+        self.downsample_conv = nn.Conv2d(
+            input_features[-3],
+            input_features[-3] // downsample_factor,
+            kernel_size=(1, 1),
+        )
+        self.classifier = nn.Linear(
+            num_input_features // (downsample_factor * 4), num_classes
+        )
+
+    def forward(self, x, return_features=False):
+        pool_output = self.alpha * self.maxpool(x) + (1 - self.alpha) * self.avgpool(x)
+        pool_output = self.downsample_conv(pool_output)
         cls_output = self.classifier(pool_output.view(pool_output.size(0), -1))
         if return_features:
             return cls_output, pool_output
@@ -163,21 +223,35 @@ def get_alt_sdn_weights(current_epoch, total_epochs):
 
 
 class RegisterForwardHook:
-    def __init__(self):
+    def __init__(self, mode: str):
+        self.mode = mode
         self.output = None
 
     def __call__(self, module, input, output):
-        self.output = output
+        if self.mode == "output":
+            self.output = output
+        elif self.mode == "input":
+            if isinstance(input, tuple):
+                # Handle cases like ViT where hook input might be a tuple
+                input = input[0]
+            self.output = input
+        else:
+            raise NotImplementedError('Hook mode should be either "output" or "input"')
 
 
-def register_intermediate_output_hooks(model, layers):
+def register_intermediate_layer_hooks(model, layers, hook_placements):
+    assert len(layers) == len(hook_placements), (
+        "Must provide the same number of layers and hook placements,"
+        "but received {} layers and {} hooks".format(len(layers), len(hook_placements))
+    )
+
     hooks = []
     modules = [(name, module) for name, module in model.named_modules()]
-    for layer_name in layers:
+    for layer_name, hook_placement in zip(layers, hook_placements):
         module_found = False
         for module_name, module in modules:
             if module_name == layer_name:
-                hook = RegisterForwardHook()
+                hook = RegisterForwardHook(mode=hook_placement)
                 module.register_forward_hook(hook)
                 hooks.append(hook)
                 print(f"Attaching IC to the layer {layer_name}...")

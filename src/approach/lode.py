@@ -16,29 +16,29 @@ class Appr(Inc_Learning_Appr):
     """
 
     def __init__(
-            self,
-            model,
-            device,
-            nepochs=100,
-            optimizer_name="sgd",
-            lr=0.05,
-            lr_min=1e-4,
-            lr_factor=3,
-            lr_patience=5,
-            clipgrad=10000,
-            momentum=0,
-            wd=0,
-            multi_softmax=False,
-            fix_bn=False,
-            eval_on_train=False,
-            select_best_model_by_val_loss=True,
-            logger=None,
-            exemplars_dataset=None,
-            scheduler_milestones=None,
-            scheduler_name="multistep",
-            all_outputs=False,
-            const=1.0,
-            ro=1.0,
+        self,
+        model,
+        device,
+        nepochs=100,
+        optimizer_name="sgd",
+        lr=0.05,
+        lr_min=1e-4,
+        lr_factor=3,
+        lr_patience=5,
+        clipgrad=10000,
+        momentum=0,
+        wd=0,
+        multi_softmax=False,
+        fix_bn=False,
+        eval_on_train=False,
+        select_best_model_by_val_loss=True,
+        logger=None,
+        exemplars_dataset=None,
+        scheduler_milestones=None,
+        scheduler_name="multistep",
+        all_outputs=False,
+        const=1.0,
+        ro=1.0,
     ):
         super(Appr, self).__init__(
             model=model,
@@ -68,8 +68,8 @@ class Appr(Inc_Learning_Appr):
         self.ro = ro
 
         have_exemplars = (
-                self.exemplars_dataset.max_num_exemplars
-                + self.exemplars_dataset.max_num_exemplars_per_class
+            self.exemplars_dataset.max_num_exemplars
+            + self.exemplars_dataset.max_num_exemplars_per_class
         )
         assert (
             have_exemplars
@@ -242,16 +242,18 @@ class Appr(Inc_Learning_Appr):
         return F.cross_entropy(inter_logits, inter_y, reduction="none")
 
     def single_head_lode_loss(
-            self,
-            t,
-            outputs_new,
-            targets_new,
-            outputs_old,
-            targets_old,
-            classes_new,
-            classes_old,
+        self,
+        t,
+        outputs_new,
+        targets_new,
+        outputs_old,
+        targets_old,
+        classes_new,
+        classes_old,
     ):
-        ce_new = F.cross_entropy(outputs_new[t], targets_new - self.model.task_offset[t])
+        ce_new = F.cross_entropy(
+            outputs_new[t], targets_new - self.model.task_offset[t]
+        )
 
         new_inter_cls = self.inter_cls(
             outputs_new,
@@ -266,7 +268,11 @@ class Appr(Inc_Learning_Appr):
             targets_old,
         )
         # TODO does it match eq. 4 exactly?
-        total_loss = self.c * ce_new + self.ro * (len(classes_new) / len(classes_old)) * new_inter_cls.mean() + l_rep
+        total_loss = (
+            self.c * ce_new
+            + self.ro * (len(classes_new) / len(classes_old)) * new_inter_cls.mean()
+            + l_rep
+        )
         return total_loss
 
     def criterion(self, t, outputs, targets, outputs_old=None, targets_old=None):

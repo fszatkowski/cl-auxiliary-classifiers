@@ -340,6 +340,14 @@ def main(argv=None):
         help="Names of modules used to attach the internal classifers.",
     )
     parser.add_argument(
+        "--hook-placements",
+        default=None,
+        type=str,
+        nargs="+",
+        required=False,
+        help="Placement of the hooks for internal classifiers, either layer 'input' or 'output'.",
+    )
+    parser.add_argument(
         "--ic-type",
         type=str,
         nargs="+",
@@ -553,6 +561,7 @@ def main(argv=None):
         remove_existing_head=not args.keep_existing_head,
         ic_config=args.ic_config,
         ic_layers=args.ic_layers,
+        hook_placements=args.hook_placements,
         ic_type=args.ic_type,
         input_size=args.input_size,
         ic_weighting=args.ic_weighting,

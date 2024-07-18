@@ -33,6 +33,6 @@ python src/main_incremental.py \
     --lr 0.1 \
     --approach ${approach} \
     --log disk wandb \
-    --results-path ./results/ImageNet100x${num_tasks}/${approach}_rn18_ex${num_exemplars}_${ic_config}/seed${seed} \
+    --results-path ./results/ImageNet100x${num_tasks}_rn18/${approach}_ex${num_exemplars}_${ic_config}/seed${seed} \
     --save-models \
     --tags ${tag}

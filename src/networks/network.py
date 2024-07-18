@@ -7,7 +7,7 @@ from networks.ic_conifgs import CONFIGS
 from networks.ic_utils import (
     create_ic,
     get_sdn_weights,
-    register_intermediate_output_hooks,
+    register_intermediate_layer_hooks,
 )
 
 
@@ -21,6 +21,7 @@ class LLL_Net(nn.Module):
         ic_config=None,
         ic_type=None,
         ic_layers=None,
+        hook_placements=None,
         input_size=None,
         ic_weighting="sdn",
         detach_ics=False,
@@ -62,6 +63,7 @@ class LLL_Net(nn.Module):
             ic_config = CONFIGS[ic_config]
             ic_type = ic_config["ic_type"]
             ic_layers = ic_config["ic_layers"]
+            hook_placements = ic_config["hook_placements"]
             input_size = ic_config["input_size"]
             ic_weighting = ic_config["ic_weighting"]
             detach_ics = ic_config["detach_ics"]
@@ -76,16 +78,16 @@ class LLL_Net(nn.Module):
             self.ic_type = ic_type
             self.heads = nn.ModuleList()
             self.ic_input_sizes = []
-            self.intermediate_output_hooks = register_intermediate_output_hooks(
-                model, ic_layers
+            self.intermediate_layer_hooks = register_intermediate_layer_hooks(
+                model, ic_layers, hook_placements
             )
-            assert len(self.intermediate_output_hooks) == len(ic_layers)
+            assert len(self.intermediate_layer_hooks) == len(ic_layers)
 
             model.eval()
             with torch.no_grad():
                 x = torch.rand(1, *input_size)
                 model(x)
-            for hook in self.intermediate_output_hooks:
+            for hook in self.intermediate_layer_hooks:
                 self.heads.append(nn.ModuleList())
                 ic_input_size = hook.output.shape
                 self.ic_input_sizes.append(ic_input_size)
@@ -147,7 +149,7 @@ class LLL_Net(nn.Module):
             outputs = []
 
             final_features = self.model(x)
-            for i, feature_hook in enumerate(self.intermediate_output_hooks):
+            for i, feature_hook in enumerate(self.intermediate_layer_hooks):
                 intermediate_output = feature_hook.output
                 features.append(intermediate_output)
             features.append(final_features)
@@ -174,7 +176,10 @@ class LLL_Net(nn.Module):
                             task_head(ic_features, prev_output.detach())
                         )
                     else:
-                        head_outputs.append(task_head(ic_features))
+                        try:
+                            head_outputs.append(task_head(ic_features))
+                        except:
+                            print("??")
                 outputs.append(head_outputs)
             assert len(outputs) == len(self.ic_layers) + 1
 

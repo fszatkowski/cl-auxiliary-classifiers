@@ -10,7 +10,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from datasets.exemplars_dataset import ExemplarsDataset
-from networks.ic_utils import register_intermediate_output_hooks
+from networks.ic_utils import register_intermediate_layer_hooks
 
 from .incremental_learning import Inc_Learning_Appr
 from .lucir import BasicBlockNoRelu
@@ -94,7 +94,7 @@ class Appr(Inc_Learning_Appr):
                 pod_fmap_layers is not None
             ), "'--pod-fmap-layers' should be provided for standard network"
             self.pod_fmap_layers = pod_fmap_layers
-            self.pod_fmap_layer_hooks = register_intermediate_output_hooks(
+            self.pod_fmap_layer_hooks = register_intermediate_layer_hooks(
                 self.model.model, self.pod_fmap_layers
             )
             self.pod_fmap_ref_layer_hooks = None
@@ -354,7 +354,7 @@ class Appr(Inc_Learning_Appr):
                 for task_head in cls_heads:
                     task_head.train()
         else:
-            self.pod_fmap_ref_layer_hooks = register_intermediate_output_hooks(
+            self.pod_fmap_ref_layer_hooks = register_intermediate_layer_hooks(
                 self.ref_model.model, self.pod_fmap_layers
             )
             for h in self.ref_model.heads:
@@ -405,6 +405,8 @@ class Appr(Inc_Learning_Appr):
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
+        if self.scheduler is not None:
+            self.scheduler.step()
 
     def _get_podnet_fmaps(self):
         return [hook.output for hook in self.pod_fmap_layer_hooks]
@@ -412,7 +414,7 @@ class Appr(Inc_Learning_Appr):
     def _get_podnet_ref_fmaps(self):
         return [hook.output for hook in self.pod_fmap_ref_layer_hooks]
 
-    def eval(self, t, val_loader):
+    def eval(self, t, val_loader, features_save_dir=None):
         """Contains the evaluation code"""
         with torch.no_grad():
             if self.model.is_early_exit():

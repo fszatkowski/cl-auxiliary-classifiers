@@ -32,7 +32,7 @@ python src/main_incremental.py \
     --approach ${approach} \
     --taskwise-kd \
     --lamb ${lamb} \
-    --results-path ./results/ImageNet100x${num_tasks}/${approach}_vit_tw_lamb_${lamb}/seed${seed} \
+    --results-path ./results/ImageNet100x${num_tasks}_vit/${approach}_tw_lamb_${lamb}/seed${seed} \
     --log disk wandb \
     --save-models \
     --tags ${tag}
