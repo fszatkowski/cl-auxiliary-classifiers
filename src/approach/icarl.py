@@ -41,7 +41,7 @@ class Appr(Inc_Learning_Appr):
         scheduler_name="multistep",
         scheduler_milestones=None,
         lamb=1,
-        logit_conversion="inverse",
+        logit_conversion="pdf",
         ic_pooling="none",
     ):
         super(Appr, self).__init__(
@@ -99,7 +99,7 @@ class Appr(Inc_Learning_Appr):
         )
         parser.add_argument(
             "--logit-conversion",
-            default="inverse",
+            default="pdf",
             type=str,
             choices=["inverse", "reverse", "pdf"],
             help="NMC distance to logits conversion (default=%(default)s)",
@@ -489,12 +489,4 @@ class iCaRLModelWrapper(torch.nn.Module):
         return logits
 
     def pdf_logits(self, dists, sigma=1):
-        # TODO check for correctness?
-        probabilities = (
-            torch.exp(-0.5 * (dists**2) / sigma) / (2 * torch.pi * sigma) ** 0.5
-        )
-        normalized_probabilities = probabilities / torch.sum(
-            probabilities, dim=1, keepdim=True
-        )
-        logits = torch.log(normalized_probabilities)
-        return logits
+        return torch.nn.functional.softmax(-(dists**2) / sigma**2, dim=1)

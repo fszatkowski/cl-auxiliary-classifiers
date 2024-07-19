@@ -33,6 +33,7 @@ python src/main_incremental.py \
     --batch-size 128 \
     --lr 0.1 \
     --approach ${approach} \
+    --ic-pooling max \
     --lamb ${lamb} \
     --log disk wandb \
     --results-path ./results/ImageNet100x${num_tasks}_vit/${approach}_ex${num_exemplars}_lamb_${lamb}_${ic_config}/seed${seed} \

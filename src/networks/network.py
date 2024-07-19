@@ -176,10 +176,7 @@ class LLL_Net(nn.Module):
                             task_head(ic_features, prev_output.detach())
                         )
                     else:
-                        try:
-                            head_outputs.append(task_head(ic_features))
-                        except:
-                            print("??")
+                        head_outputs.append(task_head(ic_features))
                 outputs.append(head_outputs)
             assert len(outputs) == len(self.ic_layers) + 1
 

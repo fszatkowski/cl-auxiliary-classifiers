@@ -107,8 +107,8 @@ for seed in 0 1 2; do
 
         # LODE
         num_exemplars=2000
-        const=1.0
-        ro=0.1
+        const=2.0
+        ro=0.5
         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro}
         #         const=1.0
         #         ro=0.05
