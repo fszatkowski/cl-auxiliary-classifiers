@@ -41,7 +41,6 @@ class Appr(Inc_Learning_Appr):
         scheduler_name="multistep",
         scheduler_milestones=None,
         lamb=1,
-        logit_conversion="pdf",
         ic_pooling="none",
     ):
         super(Appr, self).__init__(
@@ -67,7 +66,6 @@ class Appr(Inc_Learning_Appr):
         )
         self.model_old = None
         self.lamb = lamb
-        self.nmc_logit_conversion = logit_conversion
         self.ic_pooling = ic_pooling
 
         # iCaRL is expected to be used with exemplars. If needed to be used without exemplars, overwrite here the
@@ -96,13 +94,6 @@ class Appr(Inc_Learning_Appr):
             type=float,
             required=False,
             help="Forgetting-intransigence trade-off (default=%(default)s)",
-        )
-        parser.add_argument(
-            "--logit-conversion",
-            default="pdf",
-            type=str,
-            choices=["inverse", "reverse", "pdf"],
-            help="NMC distance to logits conversion (default=%(default)s)",
         )
         parser.add_argument(
             "--ic-pooling",
@@ -396,7 +387,6 @@ class Appr(Inc_Learning_Appr):
         icarl_model = iCaRLModelWrapper(
             tmp_model,
             self.exemplar_means,
-            logit_conversion=self.nmc_logit_conversion,
             ic_pooling=self.ic_pooling,
         )
         return icarl_model
@@ -422,13 +412,10 @@ def pool_nmc_features(features, ic_idx, num_cls, pooling="non"):
 
 
 class iCaRLModelWrapper(torch.nn.Module):
-    def __init__(
-        self, model, exemplar_means, logit_conversion="inverse", ic_pooling="none"
-    ):
+    def __init__(self, model, exemplar_means, ic_pooling="none"):
         super().__init__()
         self.model = model
         self.exemplar_means = exemplar_means
-        self.logit_conversion = logit_conversion
         self.ic_pooling = ic_pooling
 
     def forward(self, x):
@@ -474,19 +461,9 @@ class iCaRLModelWrapper(torch.nn.Module):
         features = features.unsqueeze(2)
         features = features.expand_as(means)
         # get distances for all images to all exemplar class means -- nearest prototype
-        dists = (
-            (features - means).pow(2).sum(1)
-        )  # TODO removed squeeze - check if it's still ok?
+        dists = (features - means).pow(2).sum(1)
         # TODO do these logits make sense?
-        if self.logit_conversion == "inverse":
-            logits = 1 / (dists + 10e-6)
-        elif self.logit_conversion == "reverse":
-            logits = -dists
-        elif self.logit_conversion == "pdf":
-            logits = self.pdf_logits(dists)
-        else:
-            raise NotImplementedError()
-        return logits
+        return self.pdf_logits(dists)
 
     def pdf_logits(self, dists, sigma=1):
-        return torch.nn.functional.softmax(-(dists**2) / sigma**2, dim=1)
+        return -((dists**2) / (sigma**2))

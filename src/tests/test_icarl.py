@@ -31,15 +31,6 @@ def test_icarl_early_exits():
     run_main_and_assert(args_line)
 
 
-def test_icarl_early_exits_pdf_inversion():
-    args_line = FAST_LOCAL_TEST_ARGS
-    args_line += " --num-exemplars 200"
-    args_line += " --lamb 1"
-    args_line += " --ic-config test_mnist"
-    args_line += " --logit-conversion pdf"
-    run_main_and_assert(args_line)
-
-
 def test_icarl_early_exits_pooling():
     args_line = FAST_LOCAL_TEST_ARGS
     args_line += " --num-exemplars 200"

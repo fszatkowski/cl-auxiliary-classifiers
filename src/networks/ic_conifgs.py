@@ -28,6 +28,26 @@ CONFIGS = {
         "ic_weighting": "sdn",
         "detach_ics": False,
     },
+    "cifar100_resnet32_sparse": {
+        "ic_layers": [
+            "layer1.2",
+            "layer2.1",
+            "layer3.0",
+        ],
+        "hook_placements": [
+            "output",
+            "output",
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_conv",
+            "standard_conv",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": "proportional",
+        "detach_ics": False,
+    },
     "cifar100_resnet32_prop": {
         "ic_layers": [
             "layer1.2",
@@ -59,8 +79,6 @@ CONFIGS = {
     },
     "cifar100_resnet32_dense": {
         "ic_layers": [
-            "layer1.0",
-            "layer1.1",
             "layer1.2",
             "layer1.3",
             "layer1.4",
@@ -87,12 +105,8 @@ CONFIGS = {
             "output",
             "output",
             "output",
-            "output",
-            "output",
         ],
         "ic_type": [
-            "standard_conv",
-            "standard_conv",
             "standard_conv",
             "standard_conv",
             "standard_conv",
