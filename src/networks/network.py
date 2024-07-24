@@ -72,9 +72,12 @@ class LLL_Net(nn.Module):
             ic_layers = []
         self.ic_layers = ic_layers
         if len(self.ic_layers) > 0:
+            assert len(ic_layers) == len(hook_placements), (
+                f"Expected the same number of IC layers and hook placements, "
+                f"but got {len(ic_layers)} and {len(hook_placements)}"
+            )
+            assert len(ic_type) == len(hook_placements) + 1
             # For early exits, create heads list per each IC
-            if len(ic_type) == 1:
-                self.ic_type = ic_type * len(ic_layers)
             self.ic_type = ic_type
             self.heads = nn.ModuleList()
             self.ic_input_sizes = []
@@ -110,11 +113,13 @@ class LLL_Net(nn.Module):
         if len(self.ic_layers) == 0:
             self.heads.append(nn.Linear(self.out_size, num_outputs))
         else:
-            for i in range(len(self.heads[:-1])):
+            for i in range(len(self.heads) - 1):
                 self.heads[i].append(
                     create_ic(self.ic_type[i], self.ic_input_sizes[i], num_outputs)
                 )
-            self.heads[-1].append(nn.Linear(self.out_size, num_outputs))
+            self.heads[-1].append(
+                create_ic(self.ic_type[-1], self.out_size, num_outputs)
+            )
 
         # we re-compute instead of append in case an approach makes changes to the heads
         if len(self.ic_layers) == 0:
@@ -167,16 +172,16 @@ class LLL_Net(nn.Module):
 
                 for head_idx in range(len(ic_heads)):
                     task_head = ic_heads[head_idx]
-                    if (
-                        ic_idx != (len(self.ic_layers))
-                        and "cascading" in self.ic_type[ic_idx]
-                    ):
-                        prev_output = outputs[ic_idx - 1][head_idx]
-                        head_outputs.append(
-                            task_head(ic_features, prev_output.detach())
-                        )
-                    else:
-                        head_outputs.append(task_head(ic_features))
+                    try:
+                        if "cascading" in self.ic_type[ic_idx]:
+                            prev_output = outputs[ic_idx - 1][head_idx]
+                            head_outputs.append(
+                                task_head(ic_features, prev_output.detach())
+                            )
+                        else:
+                            head_outputs.append(task_head(ic_features))
+                    except:
+                        print("?")
                 outputs.append(head_outputs)
             assert len(outputs) == len(self.ic_layers) + 1
 

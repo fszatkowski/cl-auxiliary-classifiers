@@ -23,8 +23,13 @@ def create_ic(ic_type: str, ic_input_size: Tuple[int, ...], num_outputs: int):
     elif ic_type == "downsample_16x_conv":
         return DownsampleConvHead(ic_input_size, num_outputs, downsample_factor=16)
     elif ic_type == "standard_fc":
-        num_ic_features = math.prod(ic_input_size)
+        if isinstance(ic_input_size, int):
+            num_ic_features = ic_input_size
+        else:
+            num_ic_features = math.prod(ic_input_size)
         return nn.Linear(num_ic_features, num_outputs)
+    elif ic_type == "cascading_fc":
+        return CascadingLinear(ic_input_size, num_outputs)
     elif ic_type == "standard_transformer":
         return StandardTransformerHead(ic_input_size, num_outputs)
     elif ic_type == "ln_transformer":
@@ -138,6 +143,24 @@ class StandardCascadingConvHead(nn.Module):
         cls_output = self.classifier(cls_input)
         if return_features:
             return cls_output, pool_output
+        else:
+            return cls_output
+
+
+class CascadingLinear(nn.Module):
+    def __init__(self, input_features: Tuple[int, ...], num_classes: int):
+        super().__init__()
+        if isinstance(input_features, int):
+            num_input_features = input_features
+        else:
+            num_input_features = math.prod(input_features)
+        self.classifier = nn.Linear(num_classes + num_input_features, num_classes)
+
+    def forward(self, x, prev_out, return_features=False):
+        cls_input = torch.cat([x, prev_out.view(prev_out.size(0), -1)], dim=1)
+        cls_output = self.classifier(cls_input)
+        if return_features:
+            return cls_output, cls_input
         else:
             return cls_output
 
