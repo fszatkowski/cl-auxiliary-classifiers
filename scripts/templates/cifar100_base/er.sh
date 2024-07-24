@@ -32,5 +32,4 @@ python src/main_incremental.py \
     --approach ${approach} \
     --log disk wandb \
     --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}/seed${seed} \
-    --save-models \
     --tags ${tag}

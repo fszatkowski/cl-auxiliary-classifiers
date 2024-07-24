@@ -13,7 +13,7 @@ ic_config=$3
 eval "$(conda shell.bash hook)"
 conda activate FACIL
 
-n_epochs=200
+n_epochs=100
 tag="imagenet100x${num_tasks}"
 approach='joint'
 
@@ -27,11 +27,10 @@ python src/main_incremental.py \
     --num-tasks ${num_tasks} \
     --use-test-as-val \
     --nepochs ${n_epochs} \
-    --batch-size 128 \
-    --lr 0.1 \
+    --batch-size 64 \
+    --lr 0.01 \
     --approach ${approach} \
     --log disk wandb \
     --results-path ./results/ImageNet100x${num_tasks}_vit/${approach}_${ic_config}/seed${seed} \
-    --save-models \
     --tags ${tag}
 

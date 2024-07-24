@@ -7,6 +7,7 @@ from typing import Optional
 
 import numpy as np
 import torch
+from pl_bolts.optimizers import LinearWarmupCosineAnnealingLR
 
 from datasets.exemplars_dataset import ExemplarsDataset
 from early_exits.flops import analyze_flops
@@ -112,9 +113,14 @@ class Inc_Learning_Appr:
                 gamma=0.1,
             )
         elif self.scheduler_name == "cosine":
-            return torch.optim.lr_scheduler.CosineAnnealingLR(
+            # return torch.optim.lr_scheduler.CosineAnnealingLR(
+            #     optimizer=self.optimizer,
+            #     T_max=self.nepochs,
+            # )
+            return LinearWarmupCosineAnnealingLR(
                 optimizer=self.optimizer,
-                T_max=self.nepochs,
+                warmup_epochs=int(0.05 * self.nepochs),
+                max_epochs=self.nepochs,
             )
         elif self.scheduler_name == "constant":
             return torch.optim.lr_scheduler.ConstantLR(optimizer=self.optimizer)
