@@ -40,6 +40,20 @@ def test_create_rn32_cascading():
     assert len(y) == 7
 
 
+def test_create_rn32_ensembling():
+    backbone = resnet32()
+    image_batch = torch.randn(1, 3, 32, 32)
+
+    lll_net = LLL_Net(
+        backbone,
+        remove_existing_head=True,
+        ic_config="cifar100_resnet32_sdn_ensembling",
+    )
+    lll_net.add_head(10)
+    y = lll_net(image_batch)
+    assert len(y) == 7
+
+
 def test_create_rn32_prop():
     backbone = resnet32()
     image_batch = torch.randn(1, 3, 32, 32)

@@ -114,11 +114,24 @@ class LLL_Net(nn.Module):
             self.heads.append(nn.Linear(self.out_size, num_outputs))
         else:
             for i in range(len(self.heads) - 1):
+                if "ensembling" in self.ic_type[i]:
+                    num_prev_heads = i
+                else:
+                    num_prev_heads = None
                 self.heads[i].append(
-                    create_ic(self.ic_type[i], self.ic_input_sizes[i], num_outputs)
+                    create_ic(
+                        self.ic_type[i],
+                        self.ic_input_sizes[i],
+                        num_outputs,
+                        num_prev_heads,
+                    )
                 )
+            if "ensembling" in self.ic_type[-1]:
+                num_prev_heads = len(self.heads) - 1
+            else:
+                num_prev_heads = None
             self.heads[-1].append(
-                create_ic(self.ic_type[-1], self.out_size, num_outputs)
+                create_ic(self.ic_type[-1], self.out_size, num_outputs, num_prev_heads)
             )
 
         # we re-compute instead of append in case an approach makes changes to the heads
@@ -172,16 +185,19 @@ class LLL_Net(nn.Module):
 
                 for head_idx in range(len(ic_heads)):
                     task_head = ic_heads[head_idx]
-                    try:
-                        if "cascading" in self.ic_type[ic_idx]:
-                            prev_output = outputs[ic_idx - 1][head_idx]
-                            head_outputs.append(
-                                task_head(ic_features, prev_output.detach())
-                            )
-                        else:
-                            head_outputs.append(task_head(ic_features))
-                    except:
-                        print("?")
+                    if "cascading" in self.ic_type[ic_idx]:
+                        prev_output = outputs[ic_idx - 1][head_idx]
+                        head_outputs.append(
+                            task_head(ic_features, prev_output.detach())
+                        )
+                    elif "ensembling" in self.ic_type[ic_idx]:
+                        prev_output = [o[head_idx] for o in outputs[:ic_idx]]
+                        head_outputs.append(
+                            task_head(ic_features, [o.detach() for o in prev_output])
+                        )
+                    else:
+                        head_outputs.append(task_head(ic_features))
+
                 outputs.append(head_outputs)
             assert len(outputs) == len(self.ic_layers) + 1
 

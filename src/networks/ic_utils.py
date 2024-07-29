@@ -1,15 +1,22 @@
 import math
-from typing import Tuple
+from typing import Optional, Tuple
 
 import torch
 from torch import nn
 
 
-def create_ic(ic_type: str, ic_input_size: Tuple[int, ...], num_outputs: int):
+def create_ic(
+    ic_type: str,
+    ic_input_size: Tuple[int, ...],
+    num_outputs: int,
+    num_prev_heads: Optional[int] = None,
+):
     if ic_type == "standard_conv":
         return StandardConvHead(ic_input_size, num_outputs)
     elif ic_type == "standard_cascading_conv":
         return StandardCascadingConvHead(ic_input_size, num_outputs)
+    elif ic_type == "standard_ensembling_conv":
+        return StandardEnsemblingConvHead(ic_input_size, num_outputs, num_prev_heads)
     elif ic_type == "adaptive_standard_conv":
         return AdaptiveStandardConvHead(ic_input_size, num_outputs, 2)
     elif ic_type == "adaptive_standard_conv_4x":
@@ -30,6 +37,8 @@ def create_ic(ic_type: str, ic_input_size: Tuple[int, ...], num_outputs: int):
         return nn.Linear(num_ic_features, num_outputs)
     elif ic_type == "cascading_fc":
         return CascadingLinear(ic_input_size, num_outputs)
+    elif ic_type == "ensembling_fc":
+        return EnsemblingLinear(ic_input_size, num_outputs, num_prev_heads)
     elif ic_type == "standard_transformer":
         return StandardTransformerHead(ic_input_size, num_outputs)
     elif ic_type == "ln_transformer":
@@ -143,6 +152,57 @@ class StandardCascadingConvHead(nn.Module):
         cls_output = self.classifier(cls_input)
         if return_features:
             return cls_output, pool_output
+        else:
+            return cls_output
+
+
+class StandardEnsemblingConvHead(nn.Module):
+    def __init__(
+        self, input_features: Tuple[int, ...], num_classes: int, num_prev_heads: int
+    ):
+        # Convolutional head similar to one in ZTW paper, but without ensembling
+        super().__init__()
+        self.maxpool = nn.MaxPool2d(kernel_size=2)
+        self.avgpool = nn.AvgPool2d(kernel_size=2)
+        self.alpha = nn.Parameter(torch.rand(1))
+        self.prev_weights = nn.Parameter(torch.zeros((num_prev_heads, 1)))
+        num_input_features = math.prod(input_features)
+        self.classifier = nn.Linear(num_classes + num_input_features // 4, num_classes)
+
+    def forward(self, x, prev_out, return_features=False):
+        pool_output = self.alpha * self.maxpool(x) + (1 - self.alpha) * self.avgpool(x)
+        cls_input = pool_output.view(pool_output.size(0), -1)
+        cls_input = torch.cat(
+            [cls_input, prev_out[-1].view(prev_out[-1].size(0), -1)], dim=1
+        )
+        cls_output = self.classifier(cls_input)
+        weighted_prevs = (torch.stack(prev_out, dim=1) * self.prev_weights).sum(dim=1)
+        cls_output = weighted_prevs + cls_output
+        if return_features:
+            return cls_output, pool_output
+        else:
+            return cls_output
+
+
+class EnsemblingLinear(nn.Module):
+    def __init__(
+        self, input_features: Tuple[int, ...], num_classes: int, num_prev_heads: int
+    ):
+        super().__init__()
+        if isinstance(input_features, int):
+            num_input_features = input_features
+        else:
+            num_input_features = math.prod(input_features)
+        self.prev_weights = nn.Parameter(torch.ones((num_prev_heads, 1)))
+        self.classifier = nn.Linear(num_classes + num_input_features, num_classes)
+
+    def forward(self, x, prev_out, return_features=False):
+        cls_input = torch.cat([x, prev_out[-1].view(prev_out[-1].size(0), -1)], dim=1)
+        cls_output = self.classifier(cls_input)
+        weighted_prevs = (torch.stack(prev_out, dim=1) * self.prev_weights).sum(dim=1)
+        cls_output = weighted_prevs + cls_output
+        if return_features:
+            return cls_output, cls_input
         else:
             return cls_output
 

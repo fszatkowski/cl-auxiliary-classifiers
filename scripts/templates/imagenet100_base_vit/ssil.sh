@@ -25,7 +25,6 @@ python src/main_incremental.py \
     --network vit_b_16 \
     --scheduler-name cosine \
     --datasets imagenet_subset_kaggle \
-    --num-workers 0 \
     --num-tasks ${num_tasks} \
     --num-exemplars ${num_exemplars} \
     --use-test-as-val \

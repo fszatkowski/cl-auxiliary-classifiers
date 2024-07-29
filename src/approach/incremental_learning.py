@@ -321,6 +321,21 @@ class Inc_Learning_Appr:
     def ee_net(self, exit_layer: Optional[int] = None) -> torch.nn.Module:
         # early exit network with all CL logic implemented for inference, for profiling
         tmp_model = deepcopy(self.model)
+        if exit_layer == -1:
+            # For measuring the FLOPs of the base network replace heads with linear
+            # otherwise cost of cascading or esnembling heads will be taken into account
+            head_sizes = tmp_model.task_cls
+            clear_heads = torch.nn.ModuleList(
+                [torch.nn.ModuleList([]) for head in tmp_model.heads]
+            )
+            tmp_model.heads = clear_heads
+            tmp_model.task_cls = []
+            tmp_model.task_offset = []
+            tmp_model.ic_type[-1] = "standard_fc"
+            for head_size in head_sizes:
+                tmp_model.add_head(head_size)
+            tmp_model.to(self.device)
+
         tmp_model.set_exit_layer(exit_layer)
         return tmp_model
 
@@ -354,6 +369,8 @@ class Inc_Learning_Appr:
                 baseline_cost = flops
 
             n_cls = len(self.model.ic_layers) + 1
+
+            breakpoint()
 
             inference_network = self.ee_net()
             thresholds = (

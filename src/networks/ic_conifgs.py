@@ -29,7 +29,7 @@ CONFIGS = {
         "ic_weighting": "sdn",
         "detach_ics": False,
     },
-    "cifar100_resnet32_sdn_cascading": {
+    "cifar100_resnet32_sdn_cascading_fixed": {
         "ic_layers": [
             "layer1.2",
             "layer1.4",
@@ -54,6 +54,36 @@ CONFIGS = {
             "standard_cascading_conv",
             "standard_cascading_conv",
             "cascading_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": "sdn",
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_sdn_ensembling": {
+        "ic_layers": [
+            "layer1.2",
+            "layer1.4",
+            "layer2.1",
+            "layer2.3",
+            "layer3.0",
+            "layer3.2",
+        ],
+        "hook_placements": [
+            "output",
+            "output",
+            "output",
+            "output",
+            "output",
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_ensembling_conv",
+            "standard_ensembling_conv",
+            "standard_ensembling_conv",
+            "standard_ensembling_conv",
+            "standard_ensembling_conv",
+            "ensembling_fc",
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": "sdn",
@@ -529,6 +559,19 @@ CONFIGS = {
     },
     "test_mnist": {
         "ic_type": ["standard_conv", "standard_conv", "standard_fc", "standard_fc"],
+        "hook_placements": ["output", "output", "output"],
+        "ic_layers": ["conv1", "conv2", "fc1"],
+        "input_size": [1, 28, 28],
+        "ic_weighting": "proportional",
+        "detach_ics": False,
+    },
+    "test_mnist_cascading": {
+        "ic_type": [
+            "standard_conv",
+            "standard_cascading_conv",
+            "cascading_fc",
+            "cascading_fc",
+        ],
         "hook_placements": ["output", "output", "output"],
         "ic_layers": ["conv1", "conv2", "fc1"],
         "input_size": [1, 28, 28],

@@ -34,3 +34,11 @@ def test_bic_with_early_exits():
     args_line += " --lamb -1"
     args_line += " --ic-config test_mnist"
     run_main_and_assert(args_line)
+
+
+def test_bic_with_early_exits_cascading():
+    args_line = FAST_LOCAL_TEST_ARGS
+    args_line += " --num-exemplars 200"
+    args_line += " --lamb -1"
+    args_line += " --ic-config test_mnist_cascading"
+    run_main_and_assert(args_line)

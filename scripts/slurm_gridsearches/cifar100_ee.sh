@@ -3,8 +3,8 @@
 set -e
 
 for seed in 0 1 2; do
-#     for ic_config in cifar100_resnet32_sdn cifar100_resnet32_dense cifar100_resnet32_sparse; do
-    for ic_config in cifar100_resnet32_sdn_detach cifar100_resnet32_sdn_cascading; do
+    #     for ic_config in cifar100_resnet32_sdn cifar100_resnet32_dense cifar100_resnet32_sparse; do
+    for ic_config in cifar100_resnet32_sdn_ensembling cifar100_resnet32_sdn_cascading_fixed; do
         for num_tasks in 5 10; do
             # ANCL
             num_exemplars=0
@@ -124,15 +124,15 @@ for seed in 0 1 2; do
             #             const=3.0
             #             ro=1.0
             #             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro} ${ic_config}
-#             const=4.0
-#             ro=0.5
-#             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro} ${ic_config}
+            #             const=4.0
+            #             ro=0.5
+            #             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro} ${ic_config}
             const=3.0
             ro=0.5
             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro} ${ic_config}
-#             const=2.0
-#             ro=0.5
-#             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro} ${ic_config}
+            #             const=2.0
+            #             ro=0.5
+            #             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro} ${ic_config}
             #             const=2.0
             #             ro=1
             #             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lode.sh ${num_tasks} ${seed} ${num_exemplars} ${const} ${ro} ${ic_config}

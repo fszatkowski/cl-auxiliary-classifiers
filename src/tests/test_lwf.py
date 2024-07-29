@@ -36,3 +36,10 @@ def test_lwf_with_early_exits():
     args_line += " --ic-config test_mnist"
     args_line += " --taskwise-kd"
     run_main_and_assert(args_line)
+
+
+def test_lwf_with_early_exits_early_exits_cascading():
+    args_line = FAST_LOCAL_TEST_ARGS
+    args_line += " --ic-config test_mnist_cascading"
+    args_line += " --taskwise-kd"
+    run_main_and_assert(args_line)

@@ -106,3 +106,10 @@ def test_finetuning_with_exemplars_and_early_exits():
     args_line += " --ic-config test_mnist"
     args_line += " --num-exemplars 200"
     run_main_and_assert(args_line)
+
+
+def test_finetuning_with_exemplars_and_early_exits_cascading():
+    args_line = FAST_LOCAL_TEST_ARGS
+    args_line += " --ic-config test_mnist_cascading"
+    args_line += " --num-exemplars 200"
+    run_main_and_assert(args_line)
