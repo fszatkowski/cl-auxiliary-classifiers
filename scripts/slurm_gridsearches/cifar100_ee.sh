@@ -4,7 +4,8 @@ set -e
 
 for seed in 0 1 2; do
     #     for ic_config in cifar100_resnet32_sdn cifar100_resnet32_dense cifar100_resnet32_sparse; do
-    for ic_config in cifar100_resnet32_sdn_ensembling cifar100_resnet32_sdn_cascading_fixed; do
+    #     for ic_config in cifar100_resnet32_sdn_cascading cifar100_resnet32_sdn_ensembling cifar100_resnet32_sdn_detach; do
+    for ic_config in cifar100_resnet32_sdn_cascading; do
         for num_tasks in 5 10; do
             # ANCL
             num_exemplars=0

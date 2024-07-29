@@ -29,7 +29,7 @@ CONFIGS = {
         "ic_weighting": "sdn",
         "detach_ics": False,
     },
-    "cifar100_resnet32_sdn_cascading_fixed": {
+    "cifar100_resnet32_sdn_cascading": {
         "ic_layers": [
             "layer1.2",
             "layer1.4",
