@@ -370,8 +370,6 @@ class Inc_Learning_Appr:
 
             n_cls = len(self.model.ic_layers) + 1
 
-            breakpoint()
-
             inference_network = self.ee_net()
             thresholds = (
                 thresholds.unsqueeze(1).unsqueeze(1).to(self.device)
