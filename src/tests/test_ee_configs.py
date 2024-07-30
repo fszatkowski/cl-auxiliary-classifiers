@@ -54,18 +54,6 @@ def test_create_rn32_ensembling():
     assert len(y) == 7
 
 
-def test_create_rn32_prop():
-    backbone = resnet32()
-    image_batch = torch.randn(1, 3, 32, 32)
-
-    lll_net = LLL_Net(
-        backbone, remove_existing_head=True, ic_config="cifar100_resnet32_prop"
-    )
-    lll_net.add_head(10)
-    y = lll_net(image_batch)
-    assert len(y) == 7
-
-
 def test_create_rn32_dense():
     backbone = resnet32()
     image_batch = torch.randn(1, 3, 32, 32)
@@ -79,19 +67,6 @@ def test_create_rn32_dense():
 
 
 def test_create_rn18_sdn():
-    backbone = resnet18(pretrained=False)
-    image_batch = torch.randn(1, 3, 224, 224)
-    set_tvmodel_head_var(backbone)
-
-    lll_net = LLL_Net(
-        backbone, remove_existing_head=True, ic_config="imagenet100_resnet18_sdn"
-    )
-    lll_net.add_head(10)
-    y = lll_net(image_batch)
-    assert len(y) == 7
-
-
-def test_create_rn18_prop():
     backbone = resnet18(pretrained=False)
     image_batch = torch.randn(1, 3, 224, 224)
     set_tvmodel_head_var(backbone)

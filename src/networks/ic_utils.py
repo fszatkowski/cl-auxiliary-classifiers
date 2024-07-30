@@ -279,32 +279,6 @@ def forward(self, x, prev_out, return_features=False):
         return cls_output
 
 
-def get_sdn_weights(current_epoch, total_epochs, n_ics):
-    if n_ics == 6:
-        final_weights = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9]
-    else:
-        raise NotImplementedError(
-            f"Cannot provide SDN weights for the network with {n_ics} ICs"
-        )
-
-    start_val = 0.01
-    current_weights = [
-        start_val + (current_epoch / (total_epochs - 1)) * (final_weight - start_val)
-        for final_weight in final_weights
-    ]
-    current_weights += [1.0]
-    return current_weights
-
-
-def get_alt_sdn_weights(current_epoch, total_epochs):
-    starting_weights = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    current_weights = [
-        starting_weight + (current_epoch / (total_epochs - 1)) * (1 - starting_weight)
-        for starting_weight in starting_weights
-    ]
-    return current_weights
-
-
 class RegisterForwardHook:
     def __init__(self, mode: str):
         self.mode = mode

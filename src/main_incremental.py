@@ -357,10 +357,11 @@ def main(argv=None):
     )
     parser.add_argument(
         "--ic-weighting",
-        type=str,
-        default="sdn",
+        type=float,
+        nargs="+",
+        default=None,
         required=False,
-        help="Loss weighting scheme for internal classifiers.",
+        help="Loss weights for internal classifiers.",
     )
     parser.add_argument(
         "--input-size",

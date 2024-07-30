@@ -3,12 +3,8 @@ from copy import deepcopy
 import torch
 from torch import nn
 
-from networks.ic_conifgs import CONFIGS
-from networks.ic_utils import (
-    create_ic,
-    get_sdn_weights,
-    register_intermediate_layer_hooks,
-)
+from networks.ic_configs import CONFIGS
+from networks.ic_utils import create_ic, register_intermediate_layer_hooks
 
 
 class LLL_Net(nn.Module):
@@ -23,7 +19,7 @@ class LLL_Net(nn.Module):
         ic_layers=None,
         hook_placements=None,
         input_size=None,
-        ic_weighting="sdn",
+        ic_weighting=None,
         detach_ics=False,
     ):
         head_var = model.head_var
@@ -276,19 +272,13 @@ class LLL_Net(nn.Module):
         return len(self.ic_layers) > 0
 
     def get_ic_weights(self, current_epoch, max_epochs):
-        if self.ic_weighting == "sdn":
-            weights = get_sdn_weights(
-                current_epoch, max_epochs, n_ics=len(self.ic_layers)
-            )
-        elif self.ic_weighting == "uniform":
-            weights = [1.0] * (len(self.ic_layers) + 1)
-        elif self.ic_weighting == "proportional":
-            step = 1 / (len(self.ic_layers) + 1)
-            weights = [step * (i + 1) for i in range(len(self.ic_layers) + 1)]
-        else:
-            raise NotImplementedError("Unknown IC weighting: " + self.ic_weighting)
-
-        assert len(weights) == len(self.ic_layers) + 1
+        start_val = 0.01
+        ic_weights = [
+            start_val + (current_epoch / (max_epochs - 1)) * (final_weight - start_val)
+            for final_weight in self.ic_weighting
+        ]
+        weights = ic_weights + [1.0]
+        assert len(weights) == len(self.heads)
         return weights
 
     def set_exit_layer(self, layer_idx: int):

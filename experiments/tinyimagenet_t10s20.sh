@@ -19,5 +19,5 @@ tag=tin_t${num_tasks}s${nc_first_task}
 lamb=10
 
 for seed in 0 1 2; do
-  ./experiments/lwf.sh 0 ${seed} ${tag} ${dataset} ${num_tasks} ${nc_first_task} ${network} ${num_epochs} ${lamb} &
+    ./experiments/lwf.sh 0 ${seed} ${tag} ${dataset} ${num_tasks} ${nc_first_task} ${network} ${num_epochs} ${lamb} &
 done
