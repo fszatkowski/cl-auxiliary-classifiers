@@ -3,15 +3,13 @@
 set -e
 
 for seed in 0 1 2; do
-    #     for ic_config in cifar100_resnet32_sdn cifar100_resnet32_dense cifar100_resnet32_sparse; do
-    #     for ic_config in cifar100_resnet32_sdn_cascading cifar100_resnet32_sdn_ensembling cifar100_resnet32_sdn_detach; do
-    for ic_config in cifar100_resnet32_sdn_cascading; do
+    for ic_config in cifar100_resnet32_sdn; do
         for num_tasks in 5 10; do
             # ANCL
             num_exemplars=0
-            lamb=1.0
-            lamb_a=1.0
-            sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a} ${ic_config}
+            #             lamb=1.0
+            #             lamb_a=1.0
+            #             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a} ${ic_config}
             #             lamb=2.0
             #             lamb_a=2.0
             #             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a} ${ic_config}
@@ -162,7 +160,7 @@ for seed in 0 1 2; do
             #             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/lwf.sh ${num_tasks} ${seed} ${lamb} ${ic_config}
 
             # Joint
-            sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/joint.sh ${num_tasks} ${seed} ${ic_config}
+            #             sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_ee/joint.sh ${num_tasks} ${seed} ${ic_config}
 
             # SSIL
             num_exemplars=2000

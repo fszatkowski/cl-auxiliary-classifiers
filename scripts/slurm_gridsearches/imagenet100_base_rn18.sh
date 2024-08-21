@@ -15,9 +15,15 @@ for seed in 0; do
         #         lamb=0.5
         #         lamb_a=0.5
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
-        lamb=1.0
-        lamb_a=2.0
-        sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
+        #         lamb=1.0
+        #         lamb_a=2.0
+        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
+        #         lamb=1.0
+        #         lamb_a=1.0
+        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
+        #         lamb=2.0
+        #         lamb_a=1.0
+        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
         #         lamb=2.0
         #         lamb_a=1.0
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
@@ -48,9 +54,9 @@ for seed in 0; do
         #         lamb=1.0
         #         lamb_a=0.5
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
-        lamb=0.5
-        lamb_a=1.0
-        sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
+        #         lamb=0.5
+        #         lamb_a=1.0
+        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
 
         # BiC
         num_exemplars=2000
@@ -60,7 +66,11 @@ for seed in 0; do
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
         #         lamb=1
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        lamb=1
+        sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
         lamb=2
+        sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        lamb=3
         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
         #         lamb=3
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
@@ -93,7 +103,7 @@ for seed in 0; do
         # iCaRL
         num_exemplars=2000
         lamb=0.25
-        sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/icarl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
+        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/icarl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
         #         lamb=0.5
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/icarl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
         #         lamb=0.75
@@ -124,6 +134,8 @@ for seed in 0; do
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/lwf.sh ${num_tasks} ${seed} ${lamb}
         #         lamb=0.75
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/lwf.sh ${num_tasks} ${seed} ${lamb}
+        lamb=0.5
+        sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/lwf.sh ${num_tasks} ${seed} ${lamb}
         lamb=1.0
         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/imagenet100_base_rn18/lwf.sh ${num_tasks} ${seed} ${lamb}
         #         lamb=1.5

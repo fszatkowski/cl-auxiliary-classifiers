@@ -48,9 +48,9 @@ for seed in 0 1 2; do
         #         lamb=1.0
         #         lamb_a=0.5
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
-        lamb=0.5
-        lamb_a=1.0
-        sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
+        #         lamb=0.5
+        #         lamb_a=1.0
+        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/ancl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb} ${lamb_a}
 
         # BiC
         num_exemplars=2000
