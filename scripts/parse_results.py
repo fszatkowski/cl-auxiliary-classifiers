@@ -146,12 +146,14 @@ def plot_compare(th_data, ic_data, output_path):
 
 if __name__ == "__main__":
     root_name = "results"
-    output_dir = Path("parsed_results") / "semi_final_batch"
+    output_dir = Path("parsed_results")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     root_dir = Path(root_name)
     result_dirs = list(root_dir.rglob("*/results"))
     assert len(result_dirs) > 0, f"Didn't find any results in {root_dir}"
+    result_dirs = [r for r in result_dirs if not ('sdn_' in str(r) or 'dense' in str(r) or 'sparse' in str(r))]
+    result_dirs = [r for r in result_dirs if 'CIFAR' in str(r)]
 
     ic_plot_data = []
     th_plot_data = []
@@ -272,7 +274,32 @@ if __name__ == "__main__":
     data = pd.DataFrame(output_data)
     data = data.sort_values(by=["dataset", "method", "run_name"])
     # Data to csv formatting floats to 3 points
-    data.to_csv(output_dir / "data.csv", index=False, float_format="%.3f")
+    data.to_csv(output_dir / "data.csv", index=False, float_format="%.2f")
+    # Compute mean and std in data
+    avg_data = deepcopy(data)
+    avg_data = avg_data.groupby(["dataset", "method", 'run_name'])
+    avg_data = avg_data.agg(
+        {
+            "no_ee_acc": ["mean", "std"],
+            "th_025": ["mean", "std"],
+            "th_050": ["mean", "std"],
+            "th_075": ["mean", "std"],
+            "th_100": ["mean", "std"],
+            "th_none": ["mean", "std"],
+        }
+    ).reset_index()
+    for key in ['no_ee_acc', 'th_025', 'th_050', 'th_075', 'th_100', 'th_none']:
+        avg_data[key + "_tmp"] = "$" + avg_data[(key, 'mean')].round(2).astype(str) + " \\pm " + avg_data[key, 'std'].round(
+            2).astype(str) + "$"
+    avg_data = avg_data[[
+        'dataset', 'method', 'run_name', 'no_ee_acc_tmp', 'th_none_tmp', 'th_100_tmp', 'th_075_tmp', 'th_050_tmp',
+        'th_025_tmp', ]]
+    avg_data.columns = [
+        'dataset', 'method', 'run_name', 'no_ee_acc', 'th_none', 'th_100', 'th_075', 'th_050', 'th_025',
+    ]
+    avg_data = avg_data.reset_index(drop=True)
+    avg_data[avg_data == 'nan \\pm nan'] = ''
+    avg_data.to_csv(output_dir / "avg_data.csv", index=False, float_format="%.2f")
 
     th_plot_data = pd.DataFrame(th_plot_data)
     ic_plot_data = pd.DataFrame(ic_plot_data)
@@ -281,7 +308,7 @@ if __name__ == "__main__":
     method_names = data["method"].unique()
     dataset_method_combinations = [(d, m) for d in datasets for m in method_names]
     for dataset_name, method_name in tqdm(
-        dataset_method_combinations, "Plotting early exit scores..."
+            dataset_method_combinations, "Plotting early exit scores..."
     ):
         dataset_output_dir = output_dir / dataset_name
         dataset_output_dir.mkdir(exist_ok=True, parents=True)
@@ -289,11 +316,11 @@ if __name__ == "__main__":
         dataset_method_th_data = th_plot_data[
             (th_plot_data["dataset"] == dataset_name)
             & (th_plot_data["method"] == method_name)
-        ]
+            ]
         dataset_method_ic_data = ic_plot_data[
             (ic_plot_data["dataset"] == dataset_name)
             & (ic_plot_data["method"] == method_name)
-        ]
+            ]
 
         if len(dataset_method_ic_data) == 0 and len(dataset_method_th_data) == 0:
             print(f"Skipping {method_name} for {dataset_name} due to no data")

@@ -1,6 +1,3 @@
-import pytest
-import torch
-
 from tests import run_main_and_assert
 
 FAST_LOCAL_TEST_ARGS = (

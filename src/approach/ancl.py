@@ -237,7 +237,9 @@ class Appr(Inc_Learning_Appr):
         if self.scheduler is not None:
             self.scheduler.step()
 
-    def eval(self, t, val_loader, features_save_dir=None):
+    def eval(
+        self, t, val_loader, save_logits=False, save_features=False, save_dir=None
+    ):
         """Contains the evaluation code"""
         with torch.no_grad():
             if self.model.is_early_exit():
@@ -256,7 +258,7 @@ class Appr(Inc_Learning_Appr):
             if self.model_aux is not None:
                 self.model_aux.eval()
 
-            for images, targets in val_loader:
+            for batch_idx, (images, targets) in enumerate(val_loader):
                 images = images.to(self.device, non_blocking=True)
                 targets = targets.to(self.device, non_blocking=True)
 
@@ -271,7 +273,19 @@ class Appr(Inc_Learning_Appr):
                         images.to(self.device, non_blocking=True)
                     )
                 # Forward current model
-                outputs = self.model(images)
+                outputs, features = self.model(images, return_features=True)
+
+                if save_dir is not None:
+                    task_save_dir = save_dir / f"t_{t}"
+                    task_save_dir.mkdir(parents=True, exist_ok=True)
+
+                    save_dict = {"targets": targets}
+                    if save_logits:
+                        save_dict["logits"] = outputs
+                    if save_features:
+                        save_dict["features"] = features
+                    torch.save(save_dict, task_save_dir / f"{batch_idx}.pt")
+
                 loss = self.criterion(
                     t,
                     outputs,
@@ -279,6 +293,7 @@ class Appr(Inc_Learning_Appr):
                     targets_old,
                     targets_aux,
                 )
+
                 if self.model.is_early_exit():
                     for i, ic_outputs in enumerate(outputs):
                         hits_taw, hits_tag = self.calculate_metrics(ic_outputs, targets)

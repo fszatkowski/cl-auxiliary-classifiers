@@ -2,7 +2,6 @@ import logging
 import time
 from argparse import ArgumentParser
 from copy import deepcopy
-from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -264,7 +263,9 @@ class Inc_Learning_Appr:
         if self.scheduler is not None:
             self.scheduler.step()
 
-    def eval(self, t, val_loader, features_save_dir=None):
+    def eval(
+        self, t, val_loader, save_logits=False, save_features=False, save_dir=None
+    ):
         """Contains the evaluation code"""
         with torch.no_grad():
             if self.model.is_early_exit():
@@ -283,14 +284,19 @@ class Inc_Learning_Appr:
                     self.device, non_blocking=True
                 )
 
-                if features_save_dir is not None:
-                    outputs, features = self.model(images, return_features=True)
-                    torch.save(
-                        {"features": features, "outputs": outputs, "targets": targets},
-                        features_save_dir / f"task_{t}_batch{batch_idx}.pt",
-                    )
-                else:
-                    outputs = self.model(images)
+                outputs, features = self.model(images, return_features=True)
+
+                if save_dir is not None:
+                    task_save_dir = save_dir / f"t_{t}"
+                    task_save_dir.mkdir(parents=True, exist_ok=True)
+
+                    save_dict = {"targets": targets}
+                    if save_logits:
+                        save_dict["logits"] = outputs
+                    if save_features:
+                        save_dict["features"] = features
+                    torch.save(save_dict, task_save_dir / f"{batch_idx}.pt")
+
                 loss = self.criterion(t, outputs, targets)
 
                 if self.model.is_early_exit():
@@ -392,7 +398,6 @@ class Inc_Learning_Appr:
             }
 
             total_cnt = 0
-            batch_idx = 0
             for images, targets in dataloader:
                 images = images.to(self.device, non_blocking=True)
                 targets = targets.to(self.device, non_blocking=True)
@@ -512,19 +517,7 @@ class Inc_Learning_Appr:
                     .cpu()
                     .numpy()
                 )
-
                 total_cnt += len(targets)
-                output_dir = Path(self.logger.exp_path) / f"logits_{subset}" / f"t_{t}"
-                output_dir.mkdir(parents=True, exist_ok=True)
-                torch.save(
-                    {
-                        "outputs_tag": merged_outputs_tag,
-                        "outputs_taw": merged_outputs_taw,
-                        "targets": targets,
-                    },
-                    output_dir / f"{batch_idx}.pt",
-                )
-                batch_idx += 1
 
             per_ic_accuracy = {
                 acc_type: hits / total_cnt for acc_type, hits in per_ic_hits.items()

@@ -18,7 +18,10 @@ def last_layer_analysis(heads, task, taskcla, y_lim=False, sort_weights=False):
             indexes.append(np.arange(class_id, class_id + n_classes_t))
             if type(heads) == torch.nn.Linear:  # Single head
                 biases.append(
-                    heads.bias[class_id : class_id + n_classes_t].detach().cpu().numpy()
+                    heads._bias[class_id : class_id + n_classes_t]
+                    .detach()
+                    .cpu()
+                    .numpy()
                 )
                 weights.append(
                     (heads.weight[class_id : class_id + n_classes_t] ** 2)
@@ -33,7 +36,7 @@ def last_layer_analysis(heads, task, taskcla, y_lim=False, sort_weights=False):
                     (heads[t].weight ** 2).sum(1).sqrt().detach().cpu().numpy()
                 )
                 if type(heads[t]) == torch.nn.Linear:
-                    biases.append(heads[t].bias.detach().cpu().numpy())
+                    biases.append(heads[t]._bias.detach().cpu().numpy())
                 else:
                     biases.append(np.zeros(weights[-1].shape))  # For LUCIR
             class_id += n_classes_t

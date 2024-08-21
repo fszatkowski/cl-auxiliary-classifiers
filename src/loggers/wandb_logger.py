@@ -3,10 +3,10 @@ import os
 from typing import List, Optional
 
 import seaborn as sns
-import wandb
 from matplotlib import pyplot as plt
 from PIL import Image
 
+import wandb
 from loggers.exp_logger import ExperimentLogger
 
 os.environ["WANDB_START_METHOD"] = "thread"

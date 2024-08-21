@@ -262,7 +262,9 @@ class Appr(Inc_Learning_Appr):
         if self.scheduler is not None:
             self.scheduler.step()
 
-    def eval(self, t, val_loader, features_save_dir=None):
+    def eval(
+        self, t, val_loader, save_logits=False, save_features=False, save_dir=None
+    ):
         """Contains the evaluation code"""
         with torch.no_grad():
             if self.model.is_early_exit():
@@ -287,6 +289,12 @@ class Appr(Inc_Learning_Appr):
                     images.to(self.device, non_blocking=True), return_features=True
                 )
                 loss = self.criterion(t, outputs, targets, outputs_old)
+
+                if save_dir is not None:
+                    raise NotImplementedError(
+                        "Saving features is not implemented for iCaRL; what are the features in case of this method?"
+                    )
+
                 # during training, the usual accuracy is computed on the outputs
                 if self.model.is_early_exit():
                     for ic_idx in range(len(outputs)):
