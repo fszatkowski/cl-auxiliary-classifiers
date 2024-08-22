@@ -12,7 +12,7 @@ seed=$2
 eval "$(conda shell.bash hook)"
 conda activate FACIL
 
-n_epochs=200
+n_epochs=100
 tag="imagenet100x${num_tasks}"
 approach='joint'
 
@@ -24,6 +24,7 @@ python src/main_incremental.py \
     --num-tasks ${num_tasks} \
     --use-test-as-val \
     --nepochs ${n_epochs} \
+    --scheduler-name cosine \
     --batch-size 128 \
     --lr 0.1 \
     --approach ${approach} \
