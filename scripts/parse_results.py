@@ -153,7 +153,7 @@ if __name__ == "__main__":
     result_dirs = list(root_dir.rglob("*/results"))
     assert len(result_dirs) > 0, f"Didn't find any results in {root_dir}"
     result_dirs = [r for r in result_dirs if not ('sdn_' in str(r) or 'dense' in str(r) or 'sparse' in str(r))]
-    result_dirs = [r for r in result_dirs if 'CIFAR' in str(r)]
+    # result_dirs = [r for r in result_dirs if 'CIFAR' in str(r)]
 
     ic_plot_data = []
     th_plot_data = []
