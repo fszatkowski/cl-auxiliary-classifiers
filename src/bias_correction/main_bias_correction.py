@@ -14,8 +14,10 @@ from bias_correction.methods.hyperopt_temperature_shared import (
     HyperoptSharedTemperatureCorrection,
 )
 from bias_correction.methods.icicle import ICICLE
+from bias_correction.methods.ideallct import IdealLCT
 from bias_correction.methods.identity import Identity
 from bias_correction.methods.lcsgd import LCSGD
+from bias_correction.methods.lctrsgd import LCTRSGD
 from bias_correction.methods.lctsgd import LCTSGD
 from bias_correction.methods.lctsgdalt import LCTSGDAlt
 from bias_correction.methods.mean_lctsgd import MeanLCTSGD
@@ -34,28 +36,29 @@ from bias_correction.visualize import (
 
 
 def main(
-    input_dir: Path,
-    output_dir: Optional[Path],
-    methods: List[str],
-    device: str,
-    n_thresholds: int,
-    icicle_u: List[float],
-    icicle_eps: float,
-    icicle_batch_size: int,
-    sgd_n_steps: int,
-    sgd_lr: float,
-    tlc_algorithm: str,
-    tlc_max_iters: int,
-    tlc_hp_space: str,
-    tlc_hp_mu: Optional[float],
-    tlc_hp_sigma: Optional[float],
-    tlc_hp_min: Optional[float],
-    tlc_hp_max: Optional[float],
-    tcb_biases: List[float],
-    ttc_bases: List[float],
-    ttc_deltas: List[float],
-    plot_best_methods: bool,
-    overwrite: bool = True,
+        input_dir: Path,
+        output_dir: Optional[Path],
+        methods: List[str],
+        device: str,
+        n_thresholds: int,
+        icicle_u: List[float],
+        icicle_eps: float,
+        icicle_batch_size: int,
+        sgd_n_steps: int,
+        sgd_lr: float,
+        lambdas: List[float],
+        tlc_algorithm: str,
+        tlc_max_iters: int,
+        tlc_hp_space: str,
+        tlc_hp_mu: Optional[float],
+        tlc_hp_sigma: Optional[float],
+        tlc_hp_min: Optional[float],
+        tlc_hp_max: Optional[float],
+        tcb_biases: List[float],
+        ttc_bases: List[float],
+        ttc_deltas: List[float],
+        plot_best_methods: bool,
+        overwrite: bool = True,
 ):
     if output_dir is None:
         output_dir = input_dir / "bc"
@@ -134,6 +137,30 @@ def main(
             )
             tlc_bias_correction.fit_bias_correction(train_data, test_data)
             bias_correctors["lctsgd"] = tlc_bias_correction
+        elif method == "lctrsgd":
+            for lamb in lambdas:
+                tlc_bias_correction = LCTRSGD(
+                    n_tasks=n_tasks,
+                    n_cls=n_cls,
+                    classes_per_task=classes_per_task,
+                    n_steps=sgd_n_steps,
+                    lr=sgd_lr,
+                    device=device,
+                    lamb=lamb,
+                )
+                tlc_bias_correction.fit_bias_correction(train_data, test_data)
+                bias_correctors[f"lctrsgd_lamb{lamb}"] = tlc_bias_correction
+        elif method == 'ideallct':
+            tlc_bias_correction = IdealLCT(
+                n_tasks=n_tasks,
+                n_cls=n_cls,
+                classes_per_task=classes_per_task,
+                n_steps=sgd_n_steps,
+                lr=sgd_lr,
+                device=device,
+            )
+            tlc_bias_correction.fit_bias_correction(train_data, test_data)
+            bias_correctors["ideallct"] = tlc_bias_correction
         elif method == "lctsgdalt":
             tlc_bias_correction = LCTSGDAlt(
                 n_tasks=n_tasks,
@@ -211,7 +238,7 @@ def main(
                     )
         elif method == "lctsgdttc":
             assert (
-                "lctsgd" in bias_correctors
+                    "lctsgd" in bias_correctors
             ), "Please run 'lctsgd' first before running 'lctsgd+tc'"
             for ttc_base in ttc_bases:
                 for ttc_delta in ttc_deltas:
@@ -230,7 +257,7 @@ def main(
                     )
         elif method == "lctsgdhtc":
             assert (
-                "lctsgd" in bias_correctors
+                    "lctsgd" in bias_correctors
             ), "Please run 'lctsgd' first before running 'lctsgdhtc'"
             hyperopt_bias_correction = HyperoptTemperatureCorrection(
                 n_tasks=n_tasks,
@@ -250,7 +277,7 @@ def main(
             bias_correctors["lctsgdhtc"] = hyperopt_bias_correction
         elif method == "lctsgdhstc":
             assert (
-                "lctsgd" in bias_correctors
+                    "lctsgd" in bias_correctors
             ), "Please run 'lctsgd' first before running 'lctsgdhstc'"
             hyperopt_bias_correction = HyperoptSequentialTemperatureCorrection(
                 n_tasks=n_tasks,
@@ -270,7 +297,7 @@ def main(
             bias_correctors["lctsgdhstc"] = hyperopt_bias_correction
         elif method == "lctsgdhshtc":
             assert (
-                "lctsgd" in bias_correctors
+                    "lctsgd" in bias_correctors
             ), "Please run 'lctsgd' first before running 'lctsgdhshtc'"
             hyperopt_bias_correction = HyperoptSharedTemperatureCorrection(
                 n_tasks=n_tasks,
@@ -383,7 +410,7 @@ if __name__ == "__main__":
         ),
         # methods=['tlc', 'tlcsgd', 'tlcic', 'tlcicsgd','ttc', 'tcb', 'icicle'],
         # methods=["tlc", "lctsgd", 'lctsgdhstc', "lctsgdhtc"],
-        methods=["tlc", "lctsgd", "lctsgdalt"],
+        methods=["tlc", "lctsgd", 'ideallct'],
         device="cuda" if torch.cuda.is_available() else "cpu",
         n_thresholds=101,
         icicle_u=[0.05, 0.10, 0.15, 0.2],

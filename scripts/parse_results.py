@@ -299,8 +299,11 @@ if __name__ == "__main__":
             print(f"Skipping {method_name} for {dataset_name} due to no data")
             continue
 
-        plot_compare(
-            dataset_method_th_data,
-            dataset_method_ic_data,
-            dataset_output_dir / (method_name + ".png"),
-        )
+        try:
+            plot_compare(
+                dataset_method_th_data,
+                dataset_method_ic_data,
+                dataset_output_dir / (method_name + ".png"),
+            )
+        except:
+            print(f"Failed to plot {method_name} for {dataset_name}")
