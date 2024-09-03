@@ -35,5 +35,5 @@ python src/main_incremental.py \
     --const ${const} \
     --ro ${ro} \
     --log disk wandb \
-    --results-path ./results/ImageNet100x${num_tasks}_vit/${approach}_ex${num_exemplars}_c_${const}_ro_${ro}/seed${seed} \
+    --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_vit/${approach}_ex${num_exemplars}_c_${const}_ro_${ro}/seed${seed} \
     --tags ${tag}
