@@ -49,8 +49,11 @@ def plot_overthinking(
 
 def get_overthinking_data(path: Path, device: str):
     setting, method, ee_config, seed = decode_path(path)
-    logits_dir = path / "logits_test"
-    task_dirs = sorted(list(logits_dir.glob("t_*")))
+    logits_dir = path / "outputs"
+    after_task_dirs = list(logits_dir.glob("after_*"))
+    final_dir = max(after_task_dirs, key=lambda x: int(x.stem.split("_")[-1]))
+    task_dirs = sorted(list(final_dir.glob("t_*")))
+
     n_tasks = len(task_dirs)
     if n_tasks == 5:
         taw_offsets = [0, 20, 40, 60, 80]
@@ -67,34 +70,26 @@ def get_overthinking_data(path: Path, device: str):
 
     outputs = []
     for task_id in range(len(task_dirs)):
-        batches_paths = sorted(list((logits_dir / f"t_{task_id}").glob("*.pt")))
-        taw_offset = taw_offsets[task_id]
+        batches_paths = sorted(list((final_dir / f"t_{task_id}").glob("*.pt")))
         hits_tag_final = 0
-        hits_taw_final = 0
         hits_tag_any = 0
-        hits_taw_any = 0
         total = 0
         for batch in batches_paths:
             data = torch.load(batch, map_location=device)
-            preds_tag = data["outputs_tag"].argmax(dim=-1)
-            preds_taw = data["outputs_taw"].argmax(dim=-1)
+
+            preds_tag = torch.stack(
+                [torch.cat(ic_data, dim=-1) for ic_data in data["logits"]], dim=1
+            ).argmax(dim=-1)
             targets_tag = data["targets"]
-            targets_taw = data["targets"] - taw_offset
 
             hits_tag_final += (preds_tag[:, -1] == targets_tag).sum().item()
             hits_tag_any += (
                 ((preds_tag == targets_tag.unsqueeze(1)).sum(dim=-1) > 0).sum().item()
             )
-            hits_taw_final += (preds_taw[:, -1] == targets_taw).sum().item()
-            hits_taw_any += (
-                ((preds_taw == targets_taw.unsqueeze(1)).sum(dim=-1) > 0).sum().item()
-            )
 
             batch_size = targets_tag.shape[0]
             total += batch_size
 
-        taw_acc_final = hits_taw_final / total
-        taw_acc_any = hits_taw_any / total
         tag_acc_final = hits_tag_final / total
         tag_acc_any = hits_tag_any / total
 
@@ -106,9 +101,6 @@ def get_overthinking_data(path: Path, device: str):
                 "ee_config": ee_config,
                 "seed": seed,
                 "task_id": task_id,
-                "taw_acc_final": taw_acc_final,
-                "taw_acc_any": taw_acc_any,
-                "taw_overthinking": taw_acc_any - taw_acc_final,
                 "tag_acc_final": tag_acc_final,
                 "tag_acc_any": tag_acc_any,
                 "tag_overthinking": tag_acc_any - tag_acc_final,
@@ -117,8 +109,6 @@ def get_overthinking_data(path: Path, device: str):
         )
 
     total_samples = sum([o["total"] for o in outputs])
-    avg_taw_acc_final = sum([o["taw_acc_final"] for o in outputs]) / len(outputs)
-    avg_taw_acc_any = sum([o["taw_acc_any"] for o in outputs]) / len(outputs)
     avg_tag_acc_final = sum([o["tag_acc_final"] for o in outputs]) / len(outputs)
     avg_tag_acc_any = sum([o["tag_acc_any"] for o in outputs]) / len(outputs)
 
@@ -128,9 +118,6 @@ def get_overthinking_data(path: Path, device: str):
         "ee_config": ee_config,
         "seed": seed,
         "task_id": AVG_TASK_NAME,
-        "taw_acc_final": avg_taw_acc_final,
-        "taw_acc_any": avg_taw_acc_any,
-        "taw_overthinking": avg_taw_acc_any - avg_taw_acc_final,
         "tag_acc_final": avg_tag_acc_final,
         "tag_acc_any": avg_tag_acc_any,
         "tag_overthinking": avg_tag_acc_any - avg_tag_acc_final,
@@ -138,12 +125,6 @@ def get_overthinking_data(path: Path, device: str):
     }
     outputs.append(output_avg_acc)
 
-    wavg_taw_acc_final = (
-        sum([o["taw_acc_final"] * o["total"] for o in outputs]) / total_samples
-    )
-    wavg_taw_acc_any = (
-        sum([o["taw_acc_any"] * o["total"] for o in outputs]) / total_samples
-    )
     wavg_tag_acc_final = (
         sum([o["tag_acc_final"] * o["total"] for o in outputs]) / total_samples
     )
@@ -157,9 +138,6 @@ def get_overthinking_data(path: Path, device: str):
         "ee_config": ee_config,
         "seed": seed,
         "task_id": AVG_TASK_NAME,
-        "taw_acc_final": wavg_taw_acc_final,
-        "taw_acc_any": wavg_taw_acc_any,
-        "taw_overthinking": wavg_taw_acc_any - wavg_taw_acc_final,
         "tag_acc_final": wavg_tag_acc_final,
         "tag_acc_any": wavg_tag_acc_any,
         "tag_overthinking": wavg_tag_acc_any - wavg_tag_acc_final,
@@ -201,7 +179,7 @@ def plot_overthinking_between_tasks(
         if len(tmp_df) == 0:
             continue
 
-        for acc in ["TAw", "TAg"]:
+        for acc in ["TAg"]:
             plot_output_dir = output_dir / acc.lower() / f"{setting}"
             plot_output_dir.mkdir(exist_ok=True, parents=True)
             plot_overthinking(
