@@ -940,7 +940,7 @@ def main(argv=None):
                 "per_th_acc": per_th_acc,
                 "per_th_exit_cnt": per_th_exit_cnt,
             }
-        avg_results = combine_ee_eval_results(results)
+        avg_results = combine_ee_eval_results(results, taskcla)
         results["avg"] = avg_results
         results_path = Path(logger.exp_path) / "results" / "ee_eval.npy"
         np.save(results_path, results)

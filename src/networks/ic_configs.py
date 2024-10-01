@@ -113,6 +113,7 @@ CONFIGS = {
             "standard_conv",
             "standard_conv",
             "standard_conv",
+            "standard_fc",
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.15, 0.3, 0.45, 0.6, 0.75, 0.9],

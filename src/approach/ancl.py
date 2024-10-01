@@ -137,7 +137,7 @@ class Appr(Inc_Learning_Appr):
                 lr_min=self.lr_min,
                 lr_factor=self.lr_factor,
                 lr_patience=self.lr_patience,
-                clipgrad=self.clipgrad,
+                clipgrad=max(1, self.clipgrad / 100),  # Added for stability on ImageNet
                 momentum=0.9,
                 wd=5e-4,
                 multi_softmax=self.multi_softmax,

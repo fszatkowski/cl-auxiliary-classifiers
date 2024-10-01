@@ -195,6 +195,7 @@ class EnsemblingLinear(nn.Module):
             num_input_features = math.prod(input_features)
         self.prev_weights = nn.Parameter(torch.ones((num_prev_heads, 1)))
         self.classifier = nn.Linear(num_classes + num_input_features, num_classes)
+        self.out_features = self.classifier.out_features
 
     def forward(self, x, prev_out, return_features=False):
         cls_input = torch.cat([x, prev_out[-1].view(prev_out[-1].size(0), -1)], dim=1)
@@ -215,6 +216,7 @@ class CascadingLinear(nn.Module):
         else:
             num_input_features = math.prod(input_features)
         self.classifier = nn.Linear(num_classes + num_input_features, num_classes)
+        self.out_features = self.classifier.out_features
 
     def forward(self, x, prev_out, return_features=False):
         cls_input = torch.cat([x, prev_out.view(prev_out.size(0), -1)], dim=1)
