@@ -35,6 +35,6 @@ python src/main_incremental.py \
     --taskwise-kd \
     --lamb ${lamb} \
     --lamb-a ${lamb_a} \
-    --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_rn18/${approach}_tw_ex_${num_exemplars}_lamb_${lamb}_lamb_a_${lamb_a}/seed${seed} \
+    --results-path results/ImageNet100x${num_tasks}_rn18/${approach}_tw_ex_${num_exemplars}_lamb_${lamb}_lamb_a_${lamb_a}/seed${seed} \
     --log disk \
     --tags ${tag}

@@ -36,7 +36,7 @@ python src/main_incremental.py \
     --approach ${approach} \
     --const ${const} \
     --ro ${ro} \
-    --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_vit/${approach}_ex${num_exemplars}_c_${const}_ro${ro}_${ic_config}/seed${seed} \
+    --results-path results/ImageNet100x${num_tasks}_vit/${approach}_ex${num_exemplars}_c_${const}_ro${ro}_${ic_config}/seed${seed} \
     --log disk \
     --tags ${tag}
 
