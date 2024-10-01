@@ -31,11 +31,11 @@ python src/main_incremental.py \
     --num-exemplars 0 \
     --use-test-as-val \
     --nepochs ${n_epochs} \
-    --batch-size 64 \
+    --batch-size 32 \
     --lr 0.01 \
     --approach ${approach} \
     --lamb ${lamb} \
     --alpha ${alpha} \
-    --log disk wandb \
+    --log disk \
     --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_vit/${approach}_lamb_${lamb}_alpha_${alpha}_${ic_config}/seed${seed} \
     --tags ${tag}

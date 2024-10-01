@@ -33,6 +33,6 @@ python src/main_incremental.py \
     --taskwise-kd \
     --lamb ${lamb} \
     --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_rn18/${approach}_tw_lamb_${lamb}/seed${seed} \
-    --log disk wandb \
+    --log disk \
     --tags ${tag}
 

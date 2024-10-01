@@ -32,6 +32,6 @@ python src/main_incremental.py \
     --batch-size 128 \
     --lr 0.1 \
     --approach ${approach} \
-    --log disk wandb \
+    --log disk \
     --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_rn18/${approach}_rn18_ex${num_exemplars}_${ic_config}/seed${seed} \
     --tags ${tag}
