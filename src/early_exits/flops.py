@@ -5,7 +5,6 @@ from fvcore.nn import FlopCountAnalysis, parameter_count
 from fvcore.nn.jit_handles import elementwise_flop_counter
 
 OP_HANDLERS = {
-    # TODO copied from effbench, might require further investigation
     "aten::add": elementwise_flop_counter(0, 1),
     "aten::add_": elementwise_flop_counter(0, 1),
     "aten::radd": elementwise_flop_counter(0, 1),

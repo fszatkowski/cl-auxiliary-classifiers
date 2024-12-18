@@ -17,6 +17,13 @@ def test_finetuning_without_exemplars():
     run_main_and_assert(args_line)
 
 
+def test_finetuning_without_exemplars_save_outputs():
+    args_line = FAST_LOCAL_TEST_ARGS
+    args_line += " --approach finetuning"
+    args_line += " --save-test-features --save-test-logits"
+    run_main_and_assert(args_line)
+
+
 def test_finetuning_with_exemplars():
     args_line = FAST_LOCAL_TEST_ARGS
     args_line += " --approach finetuning"
@@ -98,6 +105,13 @@ def test_finetuning_with_diff_epochs_first_task():
 def test_finetuning_with_early_exits():
     args_line = FAST_LOCAL_TEST_ARGS
     args_line += " --ic-config test_mnist"
+    run_main_and_assert(args_line)
+
+
+def test_finetuning_with_early_exits_save_outputs():
+    args_line = FAST_LOCAL_TEST_ARGS
+    args_line += " --ic-config test_mnist"
+    args_line += " --save-test-features --save-test-logits"
     run_main_and_assert(args_line)
 
 

@@ -35,6 +35,6 @@ python src/main_incremental.py \
     --approach ${approach} \
     --lamb ${lamb} \
     --alpha ${alpha} \
-    --log disk wandb \
+    --log disk \
     --results-path ./results/CIFAR100x${num_tasks}/${approach}_lamb_${lamb}_alpha_${alpha}_${ic_config}/seed${seed} \
     --tags ${tag}

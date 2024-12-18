@@ -29,9 +29,9 @@ python src/main_incremental.py \
     --num-exemplars ${num_exemplars} \
     --use-test-as-val \
     --nepochs ${n_epochs} \
-    --batch-size 64 \
+    --batch-size 32 \
     --lr 0.01 \
     --approach ${approach} \
-    --log disk wandb \
+    --log disk \
     --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_vit/${approach}_ex${num_exemplars}_${ic_config}/seed${seed} \
     --tags ${tag}

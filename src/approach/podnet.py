@@ -414,7 +414,9 @@ class Appr(Inc_Learning_Appr):
     def _get_podnet_ref_fmaps(self):
         return [hook.output for hook in self.pod_fmap_ref_layer_hooks]
 
-    def eval(self, t, val_loader, features_save_dir=None):
+    def eval(
+        self, t, val_loader, save_logits=False, save_features=False, save_dir=None
+    ):
         """Contains the evaluation code"""
         with torch.no_grad():
             if self.model.is_early_exit():
@@ -434,6 +436,12 @@ class Appr(Inc_Learning_Appr):
 
                 # Forward current model
                 outputs, features = self.model(images, return_features=True)
+
+                if save_dir is not None:
+                    raise NotImplementedError(
+                        "Save features not implemented for PODNET."
+                    )
+
                 ref_features = None
                 ref_fmaps = None
                 if self.model.is_early_exit():

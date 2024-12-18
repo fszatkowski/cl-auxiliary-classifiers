@@ -34,6 +34,6 @@ python src/main_incremental.py \
     --approach ${approach} \
     --ic-pooling max \
     --lamb ${lamb} \
-    --log disk wandb \
+    --log disk \
     --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_lamb_${lamb}_${ic_config}/seed${seed} \
     --tags ${tag}

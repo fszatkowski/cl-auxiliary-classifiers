@@ -34,6 +34,6 @@ python src/main_incremental.py \
     --approach ${approach} \
     --const ${const} \
     --ro ${ro} \
-    --log disk wandb \
+    --log disk \
     --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_c_${const}_ro_${ro}/seed${seed} \
     --tags ${tag}

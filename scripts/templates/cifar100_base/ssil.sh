@@ -33,6 +33,6 @@ python src/main_incremental.py \
     --lr 0.1 \
     --approach ${approach} \
     --lamb ${lamb} \
-    --log disk wandb \
+    --log disk \
     --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_lamb_${lamb}/seed${seed} \
     --tags ${tag}

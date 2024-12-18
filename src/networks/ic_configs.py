@@ -1,4 +1,68 @@
 CONFIGS = {
+    "cifar100_vgg19_dense": {
+        "ic_layers": [
+            "features.2",
+            "features.6",
+            "features.9",
+            "features.13",
+            "features.16",
+            "features.19",
+            "features.22",
+            "features.26",
+            "features.29",
+            "features.32",
+            "features.35",
+            "features.39",
+            "features.42",
+            "features.45",
+            "features.48",
+            "features.52",
+            "relu1",
+            "relu2",
+        ],
+        "hook_placements": ["output" for _ in range(18)],
+        "ic_type": ["standard_conv" for _ in range(16)]
+        + ["standard_fc" for i in range(3)],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.05 * (i + 1) for i in range(18)],
+        "detach_ics": False,
+    },
+    "cifar100_vgg19_medium": {
+        "ic_layers": [
+            "features.6",
+            "features.13",
+            "features.19",
+            "features.26",
+            "features.32",
+            "features.39",
+            "features.45",
+            "features.52",
+            "relu1",
+            "relu2",
+        ],
+        "hook_placements": ["output" for _ in range(10)],
+        "ic_type": ["standard_conv" for _ in range(8)]
+        + ["standard_fc" for i in range(3)],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.09 * (i + 1) for i in range(10)],
+        "detach_ics": False,
+    },
+    "cifar100_vgg19_small": {
+        "ic_layers": [
+            "features.13",
+            "features.26",
+            "features.39",
+            "features.52",
+            "relu1",
+            "relu2",
+        ],
+        "hook_placements": ["output" for _ in range(6)],
+        "ic_type": ["standard_conv" for _ in range(4)]
+        + ["standard_fc" for i in range(3)],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.14 * (i + 1) for i in range(6)],
+        "detach_ics": False,
+    },
     "cifar100_resnet32_sdn": {
         "ic_layers": [
             "layer1.2",
@@ -27,6 +91,186 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.15, 0.3, 0.45, 0.6, 0.75, 0.9],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_uniform_1_only": {
+        "ic_layers": [
+            "layer1.2",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.15],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_uniform_2_only": {
+        "ic_layers": [
+            "layer1.4",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.3],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_uniform_3_only": {
+        "ic_layers": [
+            "layer2.1",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.45],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_uniform_4_only": {
+        "ic_layers": [
+            "layer2.3",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.6],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_uniform_5_only": {
+        "ic_layers": [
+            "layer3.0",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.75],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_uniform_6_only": {
+        "ic_layers": [
+            "layer3.2",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.9],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_sdn_1_only": {
+        "ic_layers": [
+            "layer1.2",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.15],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_sdn_2_only": {
+        "ic_layers": [
+            "layer1.4",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.3],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_sdn_3_only": {
+        "ic_layers": [
+            "layer2.1",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.45],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_sdn_4_only": {
+        "ic_layers": [
+            "layer2.3",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.6],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_sdn_5_only": {
+        "ic_layers": [
+            "layer3.0",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.75],
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_sdn_6_only": {
+        "ic_layers": [
+            "layer3.2",
+        ],
+        "hook_placements": [
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.9],
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn_cascading": {
@@ -113,6 +357,7 @@ CONFIGS = {
             "standard_conv",
             "standard_conv",
             "standard_conv",
+            "standard_fc",
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.15, 0.3, 0.45, 0.6, 0.75, 0.9],

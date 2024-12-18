@@ -371,18 +371,22 @@ def main(argv=None):
         required=False,
         help="Input size for the network, used to initialize internal classifiers.",
     )
-
-    # Additional args for analysis
-    parser.add_argument(
-        "--save-features",
-        action="store_true",
-        help="Whether or not to save features for analysis."
-        "Logits and targets from early-exit networks are saved by default (default=%(default)s)",
-    )
     parser.add_argument(
         "--detach-ics",
         action="store_true",
         help="Whether or not to save features for analysis (default=%(default)s)",
+    )
+
+    # Additional args for analysis
+    parser.add_argument(
+        "--save-test-features",
+        action="store_true",
+        help="Whether or not to save test features for analysis. (default=%(default)s)",
+    )
+    parser.add_argument(
+        "--save-test-logits",
+        action="store_true",
+        help="Whether or not to save test logits for analysis. (default=%(default)s)",
     )
 
     # gridsearch args
@@ -668,17 +672,21 @@ def main(argv=None):
         if t == 0 and args.ne_first_task is not None:
             appr.nepochs = args.nepochs
 
-        if args.save_features:
-            features_save_dir = Path(appr.logger.exp_path) / "features" / f"test_{t}"
-            features_save_dir.mkdir(parents=True, exist_ok=True)
+        if args.save_test_features or args.save_test_logits:
+            outputs_save_dir = Path(appr.logger.exp_path) / "outputs" / f"after_{t}"
+            outputs_save_dir.mkdir(parents=True, exist_ok=True)
         else:
-            features_save_dir = None
+            outputs_save_dir = None
 
         # Test
         if net.is_early_exit():
             for u in range(t + 1):
                 test_loss[:, t, u], acc_taw[:, t, u], acc_tag[:, t, u] = appr.eval(
-                    u, tst_loader[u], features_save_dir=features_save_dir
+                    u,
+                    tst_loader[u],
+                    save_dir=outputs_save_dir,
+                    save_logits=args.save_test_logits,
+                    save_features=args.save_test_features,
                 )
                 if u < t:
                     forg_taw[:, t, u] = acc_taw[:, :t, u].max(1) - acc_taw[:, t, u]
@@ -740,7 +748,11 @@ def main(argv=None):
         else:
             for u in range(t + 1):
                 test_loss[t, u], acc_taw[t, u], acc_tag[t, u] = appr.eval(
-                    u, tst_loader[u], features_save_dir=features_save_dir
+                    u,
+                    tst_loader[u],
+                    save_dir=outputs_save_dir,
+                    save_logits=args.save_test_logits,
+                    save_features=args.save_test_features,
                 )
                 if u < t:
                     forg_taw[t, u] = acc_taw[:t, u].max(0) - acc_taw[t, u]
@@ -919,7 +931,6 @@ def main(argv=None):
                     ee_thresholds,
                     exit_costs,
                     baseline_cost,
-                    subset="test",
                 )
             )
             results[u] = {
@@ -929,7 +940,7 @@ def main(argv=None):
                 "per_th_acc": per_th_acc,
                 "per_th_exit_cnt": per_th_exit_cnt,
             }
-        avg_results = combine_ee_eval_results(results)
+        avg_results = combine_ee_eval_results(results, taskcla)
         results["avg"] = avg_results
         results_path = Path(logger.exp_path) / "results" / "ee_eval.npy"
         np.save(results_path, results)
@@ -943,7 +954,6 @@ def main(argv=None):
             ee_thresholds,
             exit_costs,
             baseline_cost,
-            subset="train",
         )
 
     print("[Elapsed time = {:.1f} h]".format((time.time() - tstart) / (60 * 60)))

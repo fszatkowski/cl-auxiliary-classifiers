@@ -13,7 +13,7 @@ lamb=$4
 eval "$(conda shell.bash hook)"
 conda activate FACIL
 
-n_epochs=200
+n_epochs=100
 tag="imagenet100x${num_tasks}"
 approach='bic'
 
@@ -26,10 +26,12 @@ python src/main_incremental.py \
     --num-exemplars ${num_exemplars} \
     --use-test-as-val \
     --nepochs ${n_epochs} \
+    --scheduler-name cosine \
+    --num-bias-epochs ${n_epochs} \
     --batch-size 128 \
     --lr 0.1 \
     --approach ${approach} \
     --lamb ${lamb} \
-    --log disk wandb \
+    --log disk \
     --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_rn18/${approach}_ex${num_exemplars}_lamb_${lamb}/seed${seed} \
     --tags ${tag}

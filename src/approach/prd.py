@@ -457,7 +457,9 @@ class Appr(Inc_Learning_Appr):
         if self.scheduler is not None:
             self.scheduler.step()
 
-    def eval(self, t, val_loader, features_save_dir=None):
+    def eval(
+        self, t, val_loader, save_logits=False, save_features=False, save_dir=None
+    ):
         with torch.inference_mode():
             if self.model.is_early_exit():
                 # TODO
@@ -476,6 +478,12 @@ class Appr(Inc_Learning_Appr):
             for images, targets in val_loader:
                 images = images.to(self.device, non_blocking=True)
                 targets = targets.to(self.device, non_blocking=True)
+
+                if save_dir is not None:
+                    raise NotImplementedError(
+                        "Save features not implemented for PODNET."
+                    )
+
                 # compute loss and predictions
                 supcon_loss, loss_p, loss_d = self.compute_loss(t, images, targets)
                 loss = supcon_loss + loss_p + loss_d
