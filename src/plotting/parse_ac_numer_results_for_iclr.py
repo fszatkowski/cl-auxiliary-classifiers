@@ -1,6 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
-from typing import Tuple, List
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,7 +8,12 @@ import pandas as pd
 import seaborn as sns
 from tqdm import tqdm
 
-from results_utils.load_data import load_averaged_scores, load_scores_for_table, ScoresStandard, ScoresEE
+from results_utils.load_data import (
+    ScoresEE,
+    ScoresStandard,
+    load_averaged_scores,
+    load_scores_for_table,
+)
 
 BASELINE_NAME = "Base"
 AC_NAME_SPARSE = "+3AC"
@@ -263,20 +268,25 @@ if __name__ == "__main__":
             raise ValueError()
 
     for setting in ["CIFAR100x5", "CIFAR100x10"]:
-        method_batches = [['ANCL', "BiC", "ER", "LODE", "SSIL", ], ["EWC", "FT", "FT+Ex", "GDumb", "LwF"]]
-        setting_scores = [
-            s
-            for s in averaged_scores
-            if s.metadata.setting == setting
+        method_batches = [
+            [
+                "ANCL",
+                "BiC",
+                "ER",
+                "LODE",
+                "SSIL",
+            ],
+            ["EWC", "FT", "FT+Ex", "GDumb", "LwF"],
         ]
+        setting_scores = [s for s in averaged_scores if s.metadata.setting == setting]
         method_to_scores = {}
         for score in setting_scores:
             method_name = method_fn(score.metadata.exp_name)
             if score.early_exit is False:
                 setup = BASELINE_NAME
-            elif 'sparse' in score.metadata.exp_name:
+            elif "sparse" in score.metadata.exp_name:
                 setup = AC_NAME_SPARSE
-            elif 'dense' in score.metadata.exp_name:
+            elif "dense" in score.metadata.exp_name:
                 setup = AC_NAME_DENSE
             else:
                 setup = AC_NAME_BASE
@@ -293,26 +303,45 @@ if __name__ == "__main__":
                 scores_ee: List[Tuple[str, ScoresEE]] = [
                     (AC_NAME_SPARSE, method_to_scores[(AC_NAME_SPARSE, method)]),
                     (AC_NAME_BASE, method_to_scores[(AC_NAME_BASE, method)]),
-                (AC_NAME_DENSE, method_to_scores[(AC_NAME_DENSE, method)])]
+                    (AC_NAME_DENSE, method_to_scores[(AC_NAME_DENSE, method)]),
+                ]
 
                 for method_name, score_ee in scores_ee:
                     sns.lineplot(
-                        x=score_ee.per_th_cost, y=score_ee.per_th_acc, label=method_name, linewidth=LINEWIDTH, zorder=2,
-                        color=CMAP[method_name], ax=axes[idx],
-                        legend=idx == 5
+                        x=score_ee.per_th_cost,
+                        y=score_ee.per_th_acc,
+                        label=method_name,
+                        linewidth=LINEWIDTH,
+                        zorder=2,
+                        color=CMAP[method_name],
+                        ax=axes[idx],
+                        legend=idx == 5,
                     )
                     step_size = 5
-                    marker_x, marker_y = score_ee.per_th_cost[1::step_size].tolist(), score_ee.per_th_acc[
-                                                                                      1::step_size].tolist()
+                    marker_x, marker_y = (
+                        score_ee.per_th_cost[1::step_size].tolist(),
+                        score_ee.per_th_acc[1::step_size].tolist(),
+                    )
                     marker_x.append(score_ee.per_th_cost[-1])
                     marker_y.append(score_ee.per_th_acc[-1])
-                    axes[idx].scatter(marker_x, marker_y, color=CMAP[method_name], zorder=3, s=MARKERSIZE)
-                    axes[idx].fill_between(score_ee.per_th_cost, score_ee.per_th_acc - score_ee.per_th_std,
-                                           score_ee.per_th_acc + score_ee.per_th_std, alpha=0.2, color=CMAP[method_name])
+                    axes[idx].scatter(
+                        marker_x,
+                        marker_y,
+                        color=CMAP[method_name],
+                        zorder=3,
+                        s=MARKERSIZE,
+                    )
+                    axes[idx].fill_between(
+                        score_ee.per_th_cost,
+                        score_ee.per_th_acc - score_ee.per_th_std,
+                        score_ee.per_th_acc + score_ee.per_th_std,
+                        alpha=0.2,
+                        color=CMAP[method_name],
+                    )
 
                 min_cost = min([score[1].per_th_cost[0] for score in scores_ee])
                 sns.lineplot(
-                    x=[min_cost, 1.],
+                    x=[min_cost, 1.0],
                     y=[score_base.tag_acc_final, score_base.tag_acc_final],
                     label=BASELINE_NAME,
                     linestyle="dashed",
@@ -320,21 +349,28 @@ if __name__ == "__main__":
                     zorder=1,
                     color=CMAP[BASELINE_NAME],
                     ax=axes[idx],
-                    legend=idx == 5
+                    legend=idx == 5,
                 )
-                axes[idx].fill_between([min_cost, 1], score_base.tag_acc_final - score_base.tag_acc_std,
-                                       score_base.tag_acc_final + score_base.tag_acc_std, alpha=0.2,
-                                       color=CMAP[BASELINE_NAME])
+                axes[idx].fill_between(
+                    [min_cost, 1],
+                    score_base.tag_acc_final - score_base.tag_acc_std,
+                    score_base.tag_acc_final + score_base.tag_acc_std,
+                    alpha=0.2,
+                    color=CMAP[BASELINE_NAME],
+                )
 
                 # Set fontsize for xticks and yticks
-                axes[idx].tick_params(axis="both", which="major", labelsize=FONTSIZE_TICKS)
+                axes[idx].tick_params(
+                    axis="both", which="major", labelsize=FONTSIZE_TICKS
+                )
                 axes[idx].set_xlabel("Cost", fontsize=FONTSIZE_TITLE)
                 if idx == 0:
                     axes[idx].set_ylabel("Accuracy", fontsize=FONTSIZE_TITLE)
                 else:
                     axes[idx].set_ylabel(None)
                 axes[idx].set_title(
-                    f"{setting.replace('_rn', '').replace('_vit', '')} | {method}", fontsize=FONTSIZE_TITLE
+                    f"{setting.replace('_rn', '').replace('_vit', '')} | {method}",
+                    fontsize=FONTSIZE_TITLE,
                 )
 
             try:
@@ -344,17 +380,18 @@ if __name__ == "__main__":
                     handles[labels.index(BASELINE_NAME)],
                     handles[labels.index(AC_NAME_SPARSE)],
                     handles[labels.index(AC_NAME_BASE)],
-                    handles[labels.index(AC_NAME_DENSE)]
+                    handles[labels.index(AC_NAME_DENSE)],
                 ]
                 labels = [BASELINE_NAME, AC_NAME_SPARSE, AC_NAME_BASE, AC_NAME_DENSE]
-                axes[-1].legend(handles, labels, fontsize=FONTSIZE_LEGEND, loc="lower right")
+                axes[-1].legend(
+                    handles, labels, fontsize=FONTSIZE_LEGEND, loc="lower right"
+                )
             except:
                 axes[-1].legend(fontsize=FONTSIZE_LEGEND, loc="lower right")
 
             fig.tight_layout()
             fig.savefig(OUTPUT_DIR_PLOTS / f"{setting}_{batch_idx}.pdf")
             # fig.savefig(OUTPUT_DIR_PLOTS / f"{setting}_{batch_idx}.png")
-
 
     OUTPUT_DIR_TABLES.mkdir(parents=True, exist_ok=True)
     table_data = load_scores_for_table(ROOT_DIR / "results", filter=filter_fn)

@@ -182,7 +182,7 @@ def plot_unique_acc_between_tasks(
         else:
             setting_to_data[(setting, ee_setup)] = {method: data}
 
-    methods = ['FT', 'FT+Ex', 'LwF', 'BiC']
+    methods = ["FT", "FT+Ex", "LwF", "BiC"]
     for (setting, ee_setup), method_data in setting_to_data.items():
         plt.cla()
         plt.clf()

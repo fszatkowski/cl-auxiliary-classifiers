@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
-from torchvision.models import resnet18, VisionTransformer, vit_b_16
+from torchvision.models import VisionTransformer, resnet18, vit_b_16
 from tqdm import tqdm
 
 from networks import resnet32

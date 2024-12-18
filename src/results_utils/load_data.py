@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Optional, Dict
+from typing import Callable, Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -120,16 +120,16 @@ def average_scores(scores: list) -> list:
 
 
 def _average_scores(
-        scores: list, setting: str, early_exit: bool, exp_name: str, tag: str
+    scores: list, setting: str, early_exit: bool, exp_name: str, tag: str
 ) -> Scores:
     filtered_scores = [
         s
         for s in scores
         if (
-                s.metadata.setting == setting
-                and s.early_exit == early_exit
-                and s.metadata.exp_name == exp_name
-                and s.metadata.tag == tag
+            s.metadata.setting == setting
+            and s.early_exit == early_exit
+            and s.metadata.exp_name == exp_name
+            and s.metadata.tag == tag
         )
     ]
     print(
@@ -167,7 +167,7 @@ def _average_scores(
 
 
 def load_averaged_scores(
-        root_dir: Path, downsample: bool = False, filter: Callable = None
+    root_dir: Path, downsample: bool = False, filter: Callable = None
 ) -> list:
     results_paths = Path(root_dir).rglob("results")
     if filter is not None:
@@ -185,24 +185,22 @@ def parse_score(score: Scores) -> Dict:
             "setting": score.metadata.setting,
             "exp_name": score.metadata.exp_name,
             "early_exit": score.early_exit,
-            'seed': score.metadata.seed,
-            'acc': score.per_th_acc[-1],
+            "seed": score.metadata.seed,
+            "acc": score.per_th_acc[-1],
         }
     elif isinstance(score, ScoresStandard):
         return {
             "setting": score.metadata.setting,
             "exp_name": score.metadata.exp_name,
             "early_exit": score.early_exit,
-            'seed': score.metadata.seed,
-            'acc': score.tag_acc_final,
+            "seed": score.metadata.seed,
+            "acc": score.tag_acc_final,
         }
     else:
         raise NotImplementedError()
 
 
-def load_scores_for_table(
-        root_dir: Path, filter: Callable = None
-) -> pd.DataFrame:
+def load_scores_for_table(root_dir: Path, filter: Callable = None) -> pd.DataFrame:
     results_paths = Path(root_dir).rglob("results")
     if filter is not None:
         results_paths = [p for p in results_paths if filter(p)]

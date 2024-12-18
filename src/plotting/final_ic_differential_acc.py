@@ -71,7 +71,7 @@ def load_ic_data(path: Path):
 
 
 def plot_per_ic_acc(
-        data: pd.DataFrame, output_path: Path, plot_avg: bool = True, title: str = None
+    data: pd.DataFrame, output_path: Path, plot_avg: bool = True, title: str = None
 ):
     plt.cla()
     plt.clf()
@@ -228,14 +228,14 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
             (df["setting"] == setting)
             & (df["method"] == method)
             & (df["ee_config"] == ee_config)
-            ]
+        ]
         df_trained_tag = df_trained[df_trained["acc_type"] == "tag"]
 
         df_detached = df[
             (df["setting"] == setting)
             & (df["method"] == method + "_detach")
             & (df["ee_config"] == ee_config)
-            ]
+        ]
         df_detached_tag = df_detached[df_detached["acc_type"] == "tag"]
 
         df_trained_tag = df_trained_tag.sort_values(
@@ -263,7 +263,7 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
 
         df_diff_tag = deepcopy(df_trained_tag)
         df_diff_tag["acc"] = (
-                df_trained_tag["acc"].values - df_detached_tag["acc"].values
+            df_trained_tag["acc"].values - df_detached_tag["acc"].values
         )
         if "finetuning_ex0" in method:
             output_filename = "ft"
@@ -305,12 +305,12 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
     plt.cla()
     plt.clf()
     fig, axs = plt.subplots(1, 2, figsize=(10, 4.5))
-    for i, setting in enumerate(['CIFAR100x5', "CIFAR100x10"]):
+    for i, setting in enumerate(["CIFAR100x5", "CIFAR100x10"]):
         avg_acc_df = df[
             (df["setting"] == setting)
             & (df["task_id"] == "Avg")
             & (df["acc_type"] == "tag")
-            ]
+        ]
         avg_acc_df = avg_acc_df[["method", "seed", "ic_idx", "acc"]]
 
         avg_acc_df_detached = avg_acc_df[avg_acc_df["method"].str.contains("detach")]
@@ -329,7 +329,13 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
         diff_df["acc"] = diff
 
         plot = sns.lineplot(
-            x="ic_idx", y="acc", hue="method", palette=DIFF_PALETTE, data=diff_df, ax=axs[i], legend=i == 0
+            x="ic_idx",
+            y="acc",
+            hue="method",
+            palette=DIFF_PALETTE,
+            data=diff_df,
+            ax=axs[i],
+            legend=i == 0,
         )
         plot.set_title(f"{setting}", fontsize=TITLE_FONTSIZE)
         plot.set_xlabel("Classifier", fontsize=LABELS_FONTSIZE)
@@ -352,7 +358,7 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
         yticklabels = plot.get_yticklabels()
         fixed_yticklabels = []
         for label in yticklabels:
-            if "0" in label.get_text() or '−' in label.get_text():
+            if "0" in label.get_text() or "−" in label.get_text():
                 fixed_yticklabels.append(label)
             else:
                 fixed_yticklabels.append("+" + label.get_text())
@@ -366,8 +372,14 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
             # # Reorder original handles and labels to follow the set order
             # handles = [handles[labels_ordered.index(label)] for label in labels]
             # labels = [labels_ordered.index(label) for label in labels]
-            plot.legend(handles, labels, fontsize=LEGEND_FONTSIZE, title_fontsize=LEGEND_FONTSIZE, ncol=2,
-                        loc='lower left')
+            plot.legend(
+                handles,
+                labels,
+                fontsize=LEGEND_FONTSIZE,
+                title_fontsize=LEGEND_FONTSIZE,
+                ncol=2,
+                loc="lower left",
+            )
 
     plt.tight_layout()
     fig.savefig(output_dir / f"acc_change_when_training_acs.pdf")

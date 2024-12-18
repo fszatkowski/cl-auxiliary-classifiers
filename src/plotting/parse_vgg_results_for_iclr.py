@@ -1,7 +1,7 @@
+import random
 from copy import deepcopy
 from dataclasses import asdict
 from pathlib import Path
-from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,34 +17,25 @@ from results_utils.load_data import (
 )
 
 BASELINE_NAME = "Base"
-LINEAR_PROBING_NAME = "+LP"
-STANDARD_NAME = "+AC"
-CASCADING_NAME = "+AC+C"
-ENSEMBLING_NAME = "+AC+E"
+SPARSE_AC_NAME = "+6AC"
+MEDIUM_AC_NAME = "+10AC"
+DENSE_AC_NAME = "+18AC"
 
 CMAP = {
     BASELINE_NAME: "tab:red",
-    LINEAR_PROBING_NAME: "tab:orange",
-    STANDARD_NAME: "tab:blue",
-    CASCADING_NAME: "tab:gray",
-    ENSEMBLING_NAME: "tab:purple",
+    SPARSE_AC_NAME: "tab:orange",
+    MEDIUM_AC_NAME: "tab:blue",
+    DENSE_AC_NAME: "tab:green",
 }
 
 sns.set_style("whitegrid")
 
 # For paper
-FONTSIZE_TITLE = 26
+FONTSIZE_TITLE = 24
 FONTSIZE_TICKS = 22
-FONTSIZE_LEGEND = 20
-LINEWIDTH = 2
-MARKERSIZE = 30
-
-# For examining results
-# FONTSIZE_TITLE = 12
-# FONTSIZE_TICKS = 12
-# FONTSIZE_LEGEND = 10
-# LINEWIDTH = 1
-# MARKERSIZE = 10
+FONTSIZE_LEGEND = 22
+LINEWIDTH = 5
+MARKERSIZE = 80
 
 METHODS = {
     "ancl_tw_ex_0": "ANCL",
@@ -52,6 +43,7 @@ METHODS = {
     "bic": "BiC",
     "ewc": "EWC",
     "er": "ER",
+    "der++": "DER++",
     "finetuning_ex0": "FT",
     "finetuning_ex2000": "FT+Ex",
     "gdumb": "GDumb",
@@ -63,7 +55,9 @@ METHODS = {
 }
 
 
-def plot_scores(scores: list, save_path: Path, method: str, setting: str):
+def plot_scores(
+    scores: list, save_path: Path, method: str, setting: str, keep_org_label=False
+):
     # skip if there are no early exit results
     # close all previous figures
     plt.close("all")
@@ -81,45 +75,46 @@ def plot_scores(scores: list, save_path: Path, method: str, setting: str):
             x = score.per_th_cost
             y = score.per_th_acc
             err = score.per_th_std
-            # TODO uncomment later
-            if "ensembling" in label:
-                label = ENSEMBLING_NAME
-                color = CMAP[ENSEMBLING_NAME]
-            elif "cascading" in label:
-                label = CASCADING_NAME
-                color = CMAP[CASCADING_NAME]
-            elif "detach" in label:
-                label = LINEAR_PROBING_NAME
-                color = CMAP[LINEAR_PROBING_NAME]
+
+            if keep_org_label:
+                label = score.metadata.exp_name
+                # Get random color
+                color = (
+                    random.uniform(0, 1),
+                    random.uniform(0, 1),
+                    random.uniform(0, 1),
+                )
             else:
-                label = STANDARD_NAME
-                color = CMAP[STANDARD_NAME]
+                label = AC_NAME
+                color = CMAP[label]
+
             plot = sns.lineplot(
                 x=x, y=y, label=label, linewidth=LINEWIDTH, zorder=2, color=color
             )
-
-            # TODO comment laeter
-            # plot = sns.lineplot(x=x, y=y, label=label, linewidth=LINEWIDTH, zorder=2)
 
             step_size = 5
             marker_x, marker_y = x[1::step_size].tolist(), y[1::step_size].tolist()
             marker_x.append(x[-1])
             marker_y.append(y[-1])
 
-            # TODO uncomment later
-            plt.scatter(marker_x, marker_y, zorder=3, s=MARKERSIZE, color=color)
+            plt.scatter(marker_x, marker_y, color=color, zorder=3, s=MARKERSIZE)
             plot.fill_between(x, y - err, y + err, alpha=0.2, color=color)
-
-            # TODO comment later
-            # plot.fill_between(
-            #     x, y - err, y + err, alpha=0.2, color=plot.lines[0].get_color()
-            # )
         else:
             x = np.array([min_cost, 1.0])
             y = np.array([score.tag_acc_final, score.tag_acc_final])
             std = np.array([score.tag_acc_std, score.tag_acc_std])
-            label = BASELINE_NAME
-            color = CMAP[BASELINE_NAME]
+
+            if keep_org_label:
+                label = score.metadata.exp_name
+                color = (
+                    random.uniform(0, 1),
+                    random.uniform(0, 1),
+                    random.uniform(0, 1),
+                )
+            else:
+                label = BASELINE_NAME
+                color = CMAP[label]
+
             plot = sns.lineplot(
                 x=x,
                 y=y,
@@ -129,23 +124,19 @@ def plot_scores(scores: list, save_path: Path, method: str, setting: str):
                 zorder=1,
                 color=color,
             )
-            # fill error bars
             plot.fill_between(x, y - std, y + std, alpha=0.2, color=color)
 
-    plot.legend(fontsize=FONTSIZE_LEGEND, loc="lower right")
-    handles, labels = plot.get_legend_handles_labels()
-    # TODO uncomment later
-    handles = [
-        handles[labels.index(BASELINE_NAME)],
-        handles[labels.index(LINEAR_PROBING_NAME)],
-        handles[labels.index(STANDARD_NAME)],
-    ]
-    labels = [
-        BASELINE_NAME,
-        LINEAR_PROBING_NAME,
-        STANDARD_NAME,
-    ]
-    plot.legend(handles, labels, fontsize=FONTSIZE_LEGEND, loc="lower right")
+    if not keep_org_label:
+        plot.legend(fontsize=FONTSIZE_LEGEND, loc="lower right")
+        handles, labels = plot.get_legend_handles_labels()
+        handles = [
+            handles[labels.index(BASELINE_NAME)],
+            handles[labels.index(AC_NAME)],
+        ]
+        labels = [BASELINE_NAME, AC_NAME]
+        plot.legend(handles, labels, fontsize=FONTSIZE_LEGEND, loc="lower right")
+    else:
+        plot.legend(fontsize=4, loc="lower right")
 
     # Set fontsize for xticks and yticks
     plot.tick_params(axis="both", which="major", labelsize=FONTSIZE_TICKS)
@@ -155,8 +146,8 @@ def plot_scores(scores: list, save_path: Path, method: str, setting: str):
         f"{setting.split('_')[0]} | {METHODS[method]}", fontsize=FONTSIZE_TITLE
     )
     plt.tight_layout()
-    # plot.get_figure().savefig(str(save_path))
     plot.get_figure().savefig(str(save_path).replace(".png", ".pdf"))
+    # plot.get_figure().savefig(str(save_path))
 
 
 def _format_acc(acc, std, precision=2):
@@ -203,26 +194,28 @@ def save_main_table(scores: list, save_path: Path, method: str, setting: str):
 
 if __name__ == "__main__":
     ROOT_DIR = Path(__file__).parent.parent.parent
-    OUTPUT_DIR_PLOTS = ROOT_DIR / "iclr_data_lp_ablation" / "dynamic_acc_plots_lp"
-    OUTPUT_DIR_TABLES = ROOT_DIR / "iclr_data_lp_ablation" / "tables"
+    OUTPUT_DIR_PLOTS = ROOT_DIR / "iclr_data_vgg" / " dynamic_acc_plots"
+    OUTPUT_DIR_TABLES = ROOT_DIR / "iclr_data_vgg" / " tables"
     DOWNSAMPLE = True
 
     def filter_fn(path: Path):
-        if "CIFAR100x5" not in str(path) and "CIFAR100x10" not in str(path):
+        # if "vit" in str(path):
+        #     return False
+        if "pretrained_old" in str(path):
             return False
         string_path = str(path)
-        if (
-            "sparse" in string_path
-            or "dense" in string_path
-            or "ensembling" in string_path
-            or "cascading" in string_path
-        ):
+        # if 'der' not in string_path:
+        #     return False
+        # if 'medium' in string_path or 'dense' in string_path:
+        #     return False
+
+        if "CIFAR100x20" in string_path or "CIFAR100x50" in string_path:
             return False
-        else:
-            return True
+
+        return True
 
     averaged_scores = load_averaged_scores(
-        ROOT_DIR / "results", downsample=DOWNSAMPLE, filter=filter_fn
+        ROOT_DIR / "results_vgg19", downsample=DOWNSAMPLE, filter=filter_fn
     )
     # averaged_scores = [s for s in averaged_scores if s.early_exit is False]
     method_setting_pairs = []
@@ -240,25 +233,37 @@ if __name__ == "__main__":
     print()
 
     for method, setting in tqdm(method_setting_pairs, desc="Parsing results"):
-        filtered_scores = [
-            deepcopy(s)
-            for s in averaged_scores
-            if s.metadata.setting == setting and s.metadata.exp_name.startswith(method)
-        ]
+        filtered_scores = deepcopy(
+            [
+                s
+                for s in averaged_scores
+                if s.metadata.setting == setting
+                and s.metadata.exp_name.startswith(method)
+            ]
+        )
         for s in filtered_scores:
             s.metadata.exp_name = s.metadata.exp_name.replace(method + "_", "")
 
         save_path = OUTPUT_DIR_PLOTS / setting / f"{method}.png"
         save_path.parent.mkdir(parents=True, exist_ok=True)
-        # plot_scores(filtered_scores, save_path, method, setting)
+
+        # # # TODO uncomment to plot per method with org labels
+        # try:
+        #     plot_scores(
+        #         filtered_scores, save_path, method, setting, keep_org_label=True
+        #     )
+        # except:
+        #     print("Failed plotting for setting", setting, "method", method)
 
     def setup_fn(x):
-        if not x["early_exit"]:
+        if "vgg19_dense" in x:
+            setup = "+18AC"
+        elif "vgg19_medium" in x:
+            setup = "+10AC"
+        elif "vgg19_small" in x:
+            setup = "+6AC"
+        elif "vgg19" not in x:
             setup = "Base"
-        elif "detach" in x["exp_name"]:
-            setup = "+LP"
-        elif "sdn" in x["exp_name"]:
-            setup = "+AC"
         else:
             raise ValueError()
         return setup
@@ -280,6 +285,8 @@ if __name__ == "__main__":
             return "LODE"
         elif x.startswith("er"):
             return "ER"
+        elif x.startswith("der++"):
+            return "DER++"
         elif x.startswith("ewc"):
             return "EWC"
         elif x.startswith("gdumb"):
@@ -287,27 +294,24 @@ if __name__ == "__main__":
         else:
             raise ValueError()
 
-    for setting in ["CIFAR100x5", "CIFAR100x10"]:
+    # for setting in ["CIFAR100x5", "CIFAR100x10", "CIFAR100x6", "CIFAR100x11", "ImageNet100x5_rn18",
+    #                 "ImageNet100x10_rn18", "ImageNet100x5_vit", "ImageNet100x10_vit"]:
+    for setting in ["CIFAR100x10", "CIFAR100x5"]:
         method_batches = [
             [
                 "ANCL",
                 "BiC",
-                "ER",
+                "DER++",
                 "LODE",
                 "SSIL",
             ],
-            ["EWC", "FT", "FT+Ex", "GDumb", "LwF"],
+            ["ER", "EWC", "FT", "FT+Ex", "GDumb", "LwF"],
         ]
         setting_scores = [s for s in averaged_scores if s.metadata.setting == setting]
         method_to_scores = {}
         for score in setting_scores:
             method_name = method_fn(score.metadata.exp_name)
-            if score.early_exit is False:
-                setup = BASELINE_NAME
-            elif "detach" in score.metadata.exp_name:
-                setup = LINEAR_PROBING_NAME
-            else:
-                setup = STANDARD_NAME
+            setup = setup_fn(score.metadata.exp_name)
             method_to_scores[(setup, method_name)] = score
 
         for batch_idx, method_batch in enumerate(method_batches):
@@ -315,25 +319,32 @@ if __name__ == "__main__":
             plt.clf()
             plt.close("all")
 
-            fig, axes = plt.subplots(1, len(method_batch), figsize=(24, 4))
-            for idx, method in enumerate(method_batch):
-                score_base: ScoresStandard = method_to_scores[(BASELINE_NAME, method)]
-                scores_ee: List[Tuple[str, ScoresEE]] = [
-                    (
-                        LINEAR_PROBING_NAME,
-                        method_to_scores[(LINEAR_PROBING_NAME, method)],
-                    ),
-                    (STANDARD_NAME, method_to_scores[(STANDARD_NAME, method)]),
-                ]
+            if len(method_batch) == 5:
+                figsize = 25
+            elif len(method_batch) == 6:
+                figsize = 30
+            else:
+                raise ValueError()
 
-                for method_name, score_ee in scores_ee:
+            fig, axes = plt.subplots(1, len(method_batch), figsize=(figsize, 4))
+            for idx, method in enumerate(method_batch):
+                score_base: ScoresStandard = method_to_scores[("Base", method)]
+                score_ee_sparse: ScoresEE = method_to_scores[("+6AC", method)]
+                score_ee_medium: ScoresEE = method_to_scores[("+10AC", method)]
+                score_ee_dense: ScoresEE = method_to_scores[("+18AC", method)]
+
+                for score_ee, AC_NAME in (
+                    (score_ee_sparse, SPARSE_AC_NAME),
+                    (score_ee_medium, MEDIUM_AC_NAME),
+                    (score_ee_dense, DENSE_AC_NAME),
+                ):
                     sns.lineplot(
                         x=score_ee.per_th_cost,
                         y=score_ee.per_th_acc,
-                        label=method_name,
+                        label=AC_NAME,
                         linewidth=LINEWIDTH,
                         zorder=2,
-                        color=CMAP[method_name],
+                        color=CMAP[AC_NAME],
                         ax=axes[idx],
                         legend=idx == 5,
                     )
@@ -345,21 +356,17 @@ if __name__ == "__main__":
                     marker_x.append(score_ee.per_th_cost[-1])
                     marker_y.append(score_ee.per_th_acc[-1])
                     axes[idx].scatter(
-                        marker_x,
-                        marker_y,
-                        color=CMAP[method_name],
-                        zorder=3,
-                        s=MARKERSIZE,
+                        marker_x, marker_y, color=CMAP[AC_NAME], zorder=3, s=MARKERSIZE
                     )
                     axes[idx].fill_between(
                         score_ee.per_th_cost,
                         score_ee.per_th_acc - score_ee.per_th_std,
                         score_ee.per_th_acc + score_ee.per_th_std,
                         alpha=0.2,
-                        color=CMAP[method_name],
+                        color=CMAP[AC_NAME],
                     )
 
-                min_cost = min([score[1].per_th_cost[0] for score in scores_ee])
+                min_cost = min(score_ee_dense.per_th_cost)
                 sns.lineplot(
                     x=[min_cost, 1.0],
                     y=[score_base.tag_acc_final, score_base.tag_acc_final],
@@ -389,32 +396,28 @@ if __name__ == "__main__":
                 else:
                     axes[idx].set_ylabel(None)
                 axes[idx].set_title(
-                    f"{setting.replace('_rn', '').replace('_vit', '')} | {method}",
+                    f"{setting.replace('_rn18', '').replace('_vit', '')} | {method}",
                     fontsize=FONTSIZE_TITLE,
                 )
 
-            try:
-                handles, labels = axes[-1].get_legend_handles_labels()
+            handles, labels = axes[-1].get_legend_handles_labels()
 
-                handles = [
-                    handles[labels.index(BASELINE_NAME)],
-                    handles[labels.index(STANDARD_NAME)],
-                    handles[labels.index(LINEAR_PROBING_NAME)],
-                ]
-                labels = [BASELINE_NAME, STANDARD_NAME, LINEAR_PROBING_NAME]
-                axes[-1].legend(
-                    handles, labels, fontsize=FONTSIZE_LEGEND, loc="lower right"
-                )
-            except:
-                axes[-1].legend(fontsize=FONTSIZE_LEGEND, loc="lower right")
+            handles = [
+                handles[labels.index(BASELINE_NAME)],
+                handles[labels.index(MEDIUM_AC_NAME)],
+                handles[labels.index(DENSE_AC_NAME)],
+            ]
+            labels = [BASELINE_NAME, MEDIUM_AC_NAME, DENSE_AC_NAME]
+            axes[-1].legend(
+                handles, labels, fontsize=FONTSIZE_LEGEND, loc="lower right"
+            )
 
             fig.tight_layout()
             fig.savefig(OUTPUT_DIR_PLOTS / f"{setting}_{batch_idx}.pdf")
-            # fig.savefig(OUTPUT_DIR_PLOTS / f"{setting}_{batch_idx}.png")
 
     OUTPUT_DIR_TABLES.mkdir(parents=True, exist_ok=True)
-    table_data = load_scores_for_table(ROOT_DIR / "results", filter=filter_fn)
-    table_data["setup"] = table_data.apply(setup_fn, axis=1)
+    table_data = load_scores_for_table(ROOT_DIR / "results_vgg19", filter=filter_fn)
+    table_data["setup"] = table_data["exp_name"].apply(setup_fn)
     table_data["method"] = table_data["exp_name"].apply(method_fn)
     table_data = table_data[["setting", "method", "setup", "seed", "acc"]]
     table_data = table_data.sort_values(
@@ -426,14 +429,26 @@ if __name__ == "__main__":
         "GDumb",
         "ANCL",
         "BiC",
+        "DER++",
         "ER",
         "EWC",
         "LwF",
         "LODE",
         "SSIL",
     ]
-    settings = ["CIFAR100x5", "CIFAR100x10"]
-    setups = ["Base", "+LP", "+AC"]
+    # settings = [
+    #     "CIFAR100x5",
+    #     "CIFAR100x10",
+    #     "CIFAR100x6",
+    #     "CIFAR100x11",
+    #     "ImageNet100x5_rn18",
+    #     "ImageNet100x10_rn18",
+    #     "ImageNet100x5_vit",
+    #     "ImageNet100x10_vit",
+    # ]
+    settings = ["CIFAR100x10", "CIFAR100x5"]
+    setups = ["Base", "+6AC", "+10AC", "+18AC"]
+    seeds = [0, 1, 2]
 
     dfs_combined = []
     for setting in settings:
@@ -460,11 +475,7 @@ if __name__ == "__main__":
                 outputs_setting.append(output)
         df = pd.DataFrame(outputs_setting)
         df["Avg"] = df.values[:, 3:].mean(axis=1)
-        base = df[df["setup"] == "Base"]
-        lp = df[df["setup"] == "+LP"]
-        ac = df[df["setup"] == "+AC"]
 
-        df = pd.concat([base, lp, ac], axis=0)
         df = (
             df.groupby(by=["setting", "setup"])
             .aggregate({m: ["mean", "std"] for m in methods + ["Avg"]})
@@ -487,6 +498,7 @@ if __name__ == "__main__":
                 "_GDumb",
                 "_ANCL",
                 "_BiC",
+                "_DER++",
                 "_ER",
                 "_EWC",
                 "_LwF",
@@ -503,6 +515,7 @@ if __name__ == "__main__":
             "GDumb",
             "ANCL",
             "BiC",
+            "DER++",
             "ER",
             "EWC",
             "LwF",
@@ -512,7 +525,7 @@ if __name__ == "__main__":
         ]
         df = df.sort_values(
             by=["Setup"],
-            key=lambda x: x.map({"+AC": 0, "+AC+C": 1, "+AC+E": 2}),
+            key=lambda x: x.map({"Base": 0, "+AC": 1, "$\Delta$": 2}),
             ascending=True,
         )
         df.to_csv(OUTPUT_DIR_TABLES / f"{setting}.csv", index=False)

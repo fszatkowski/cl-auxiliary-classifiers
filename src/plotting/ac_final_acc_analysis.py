@@ -13,7 +13,7 @@ from plotting.utils import decode_path
 sns.set_style("whitegrid")
 
 AVG_TASK_NAME = "Avg"
-COLOR_PALETTE_NAME = "Greens_d"
+COLOR_PALETTE_NAME = "BrBG"
 AVG_COLOR = "tab:blue"
 MARKER = "X"
 MARKER_SIZE = 8
@@ -64,7 +64,7 @@ def load_ic_data(path: Path):
 
 
 def plot_per_ic_acc(
-        data: pd.DataFrame, output_path: Path, plot_avg: bool = True, title: str = None
+    data: pd.DataFrame, output_path: Path, plot_avg: bool = True, title: str = None
 ):
     plt.cla()
     plt.clf()
@@ -208,13 +208,13 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
 
     dfs = {}
     for setting, method, ee_config in tqdm(
-            [(s, m, ee) for s in settings for m in methods for ee in ee_configs],
+        [(s, m, ee) for s in settings for m in methods for ee in ee_configs],
     ):
         df_tmp = df[
             (df["setting"] == setting)
             & (df["method"] == method)
             & (df["ee_config"] == ee_config)
-            ]
+        ]
         df_tmp = df_tmp[df_tmp["acc_type"] == "tag"]
 
         if "detach" in method:
@@ -253,11 +253,14 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
                 ax = axes[idx]
 
                 n_tasks = df_tmp["task_id"].nunique() - 1
-                colors = reversed(sns.color_palette(COLOR_PALETTE_NAME, n_colors=n_tasks))
+                colors = reversed(
+                    sns.color_palette(COLOR_PALETTE_NAME, n_colors=n_tasks)
+                )
                 color_palette = {i: color for i, color in enumerate(colors)}
                 color_palette[AVG_TASK_NAME] = AVG_COLOR
                 line_styles = {
-                    k: (1, 1) if k == AVG_TASK_NAME else (1, 0) for k in color_palette.keys()
+                    k: (1, 1) if k == AVG_TASK_NAME else (1, 0)
+                    for k in color_palette.keys()
                 }
                 hue_order = [t for t in range(n_tasks)]
                 hue_order = hue_order + [AVG_TASK_NAME]
@@ -274,7 +277,7 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
                     markersize=MARKER_SIZE,
                     dashes=line_styles,
                     ax=ax,
-                    legend=idx == 3
+                    legend=idx == 3,
                 )
 
                 method_plot.set_title(f"{setting} | {method}", fontsize=FONTSIZE_TITLE)
@@ -289,7 +292,9 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
                 else:
                     method_plot.set_ylabel(None)
 
-                method_plot.set_yticklabels(method_plot.get_yticklabels(), fontsize=FONTSIZE_TICKS)
+                method_plot.set_yticklabels(
+                    method_plot.get_yticklabels(), fontsize=FONTSIZE_TICKS
+                )
                 if idx == 3:
                     handles, labels = method_plot.get_legend_handles_labels()
                     method_plot.legend_.remove()
@@ -308,7 +313,9 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
                 else:
                     modified_labels.append(str(int(l) + 1))
             fig.tight_layout()
-            fig.savefig(str(output_dir / f"{setting}_{ee_config}.pdf"))
+            fig.savefig(
+                str(output_dir / f"{setting}_{ee_config}.pdf").replace(" ", "_")
+            )
 
             plt.cla()
             plt.clf()
@@ -322,14 +329,16 @@ def plot_ic_accs(result_paths: List[Path], output_dir: Path):
                 fontsize=FONTSIZE_LEGEND,
                 title_fontsize=FONTSIZE_LEGEND,
                 # bbox_to_anchor=(0.5, 0.5),
-                loc='center',
+                loc="center",
                 # bbox_to_anchor=(0.5, -0.05),
                 shadow=False,
                 fancybox=False,
-                frameon=False
+                frameon=False,
             )
             fig.tight_layout()
-            fig.savefig(str(output_dir / f"{setting}_{ee_config}_legend.pdf"))
+            fig.savefig(
+                str(output_dir / f"{setting}_{ee_config}_legend.pdf").replace(" ", "_")
+            )
 
 
 if __name__ == "__main__":
