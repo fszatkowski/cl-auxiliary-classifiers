@@ -3,7 +3,7 @@
 set -e
 
 for seed in 0 1 2; do
-    for num_tasks in 5 10; do
+    for num_tasks in 5 10 20; do
         # ANCL
         num_exemplars=0
         #         lamb=1.0
@@ -69,6 +69,12 @@ for seed in 0 1 2; do
         #         lamb=5
         #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/bic.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
 
+        # DER++
+        num_exemplars=2000
+        alpha=0.5
+        beta=0.5
+        sbatch -A plgimprmoe-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/der++.sh ${num_tasks} ${seed} ${num_exemplars} ${alpha} ${beta}
+
         # EWC
         lamb=10000
         alpha=0.5
@@ -89,21 +95,6 @@ for seed in 0 1 2; do
         # GDumb
         num_exemplars=2000
         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/gdumb.sh ${num_tasks} ${seed} ${num_exemplars}
-
-        # iCaRL
-        num_exemplars=2000
-        lamb=0.25
-        sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/icarl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        #         lamb=0.5
-        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/icarl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        #         lamb=0.75
-        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/icarl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        #         lamb=1
-        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/icarl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        #         lamb=1.5
-        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/icarl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
-        #         lamb=2
-        #         sbatch -A plgdynamic2-gpu-a100 -p plgrid-gpu-a100 scripts/templates/cifar100_base/icarl.sh ${num_tasks} ${seed} ${num_exemplars} ${lamb}
 
         # LODE
         num_exemplars=2000
