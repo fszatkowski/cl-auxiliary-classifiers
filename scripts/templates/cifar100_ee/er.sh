@@ -32,6 +32,6 @@ python src/main_incremental.py \
     --batch-size 128 \
     --lr 0.1 \
     --approach ${approach} \
-    --log disk wandb \
+    --log disk \
     --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_${ic_config}/seed${seed} \
     --tags ${tag}

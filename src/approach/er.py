@@ -121,9 +121,12 @@ class Appr(Inc_Learning_Appr):
                 pin_memory=trn_loader.pin_memory,
                 drop_last=True,
             )
+            exemplars_batch_size = org_batch_size // 2
+            while exemplars_batch_size > len(self.exemplars_dataset):
+                exemplars_batch_size = exemplars_batch_size // 2
             self.memory_loader = torch.utils.data.DataLoader(
                 self.exemplars_dataset,
-                batch_size=org_batch_size // 2,
+                batch_size=exemplars_batch_size,
                 shuffle=True,
                 num_workers=trn_loader.num_workers,
                 pin_memory=trn_loader.pin_memory,

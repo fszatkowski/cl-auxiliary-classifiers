@@ -4,6 +4,7 @@ from .convnext_cifar import *
 from .lenet import LeNet
 from .resnet32 import resnet32
 from .resnet_cifar import *
+from .vgg_cifar import *
 from .vggnet import VggNet
 
 # available torchvision models
@@ -58,13 +59,17 @@ tvmodels = [
     "convnext_large",
 ]
 
-allmodels = tvmodels + [
-    resnet_cifar.__all__,
-    convnext_cifar.__all__,
-    "resnet32",
-    "LeNet",
-    "VggNet",
-]
+allmodels = (
+    tvmodels
+    + resnet_cifar.__all__
+    + vgg_cifar.__all__
+    + convnext_cifar.__all__
+    + [
+        "resnet32",
+        "LeNet",
+        "VggNet",
+    ]
+)
 
 
 def set_tvmodel_head_var(model):
