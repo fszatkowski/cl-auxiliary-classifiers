@@ -11,7 +11,6 @@ seed=$2
 num_exemplars=$3
 lamb=$4
 lamb_a=$5
-ic_config=$6
 
 eval "$(conda shell.bash hook)"
 conda activate FACIL
@@ -23,8 +22,7 @@ approach='ancl'
 python src/main_incremental.py \
     --gpu 0 \
     --seed ${seed} \
-    --network resnet32 \
-    --ic-config ${ic_config} \
+    --network vgg19_bn_cifar \
     --datasets cifar100_icarl \
     --num-tasks ${num_tasks} \
     --num-exemplars ${num_exemplars} \
@@ -36,7 +34,7 @@ python src/main_incremental.py \
     --taskwise-kd \
     --lamb ${lamb} \
     --lamb-a ${lamb_a} \
-    --results-path ./results/CIFAR100x${num_tasks}/${approach}_tw_ex_${num_exemplars}_lamb_${lamb}_lamb_a_${lamb_a}_${ic_config}/seed${seed} \
+    --results-path ./results_vgg19/CIFAR100x${num_tasks}/${approach}_tw_ex_${num_exemplars}_lamb_${lamb}_lamb_a_${lamb_a}/seed${seed} \
     --log disk \
     --tags ${tag}
 

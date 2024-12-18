@@ -32,6 +32,6 @@ python src/main_incremental.py \
     --taskwise-kd \
     --lamb ${lamb} \
     --results-path ./results/CIFAR100x${num_tasks}/${approach}_tw_lamb_${lamb}/seed${seed} \
-    --log disk wandb \
+    --log disk \
     --tags ${tag}
 
