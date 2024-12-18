@@ -66,7 +66,12 @@ class TLCSGD(BiasCorrection):
         )
 
         # TODO move to GPU
-        arange = torch.arange(9, -1, -1).unsqueeze(0).unsqueeze(0).to(self.device)
+        arange = (
+            torch.arange(self.n_tasks - 1, -1, -1)
+            .unsqueeze(0)
+            .unsqueeze(0)
+            .to(self.device)
+        )
 
         for _ in pbar:
             optimizer.zero_grad()

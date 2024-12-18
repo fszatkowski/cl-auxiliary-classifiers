@@ -36,29 +36,29 @@ from bias_correction.visualize import (
 
 
 def main(
-        input_dir: Path,
-        output_dir: Optional[Path],
-        methods: List[str],
-        device: str,
-        n_thresholds: int,
-        icicle_u: List[float],
-        icicle_eps: float,
-        icicle_batch_size: int,
-        sgd_n_steps: int,
-        sgd_lr: float,
-        lambdas: List[float],
-        tlc_algorithm: str,
-        tlc_max_iters: int,
-        tlc_hp_space: str,
-        tlc_hp_mu: Optional[float],
-        tlc_hp_sigma: Optional[float],
-        tlc_hp_min: Optional[float],
-        tlc_hp_max: Optional[float],
-        tcb_biases: List[float],
-        ttc_bases: List[float],
-        ttc_deltas: List[float],
-        plot_best_methods: bool,
-        overwrite: bool = True,
+    input_dir: Path,
+    output_dir: Optional[Path],
+    methods: List[str],
+    device: str,
+    n_thresholds: int,
+    icicle_u: List[float],
+    icicle_eps: float,
+    icicle_batch_size: int,
+    sgd_n_steps: int,
+    sgd_lr: float,
+    lambdas: List[float],
+    tlc_algorithm: str,
+    tlc_max_iters: int,
+    tlc_hp_space: str,
+    tlc_hp_mu: Optional[float],
+    tlc_hp_sigma: Optional[float],
+    tlc_hp_min: Optional[float],
+    tlc_hp_max: Optional[float],
+    tcb_biases: List[float],
+    ttc_bases: List[float],
+    ttc_deltas: List[float],
+    plot_best_methods: bool,
+    overwrite: bool = True,
 ):
     if output_dir is None:
         output_dir = input_dir / "bc"
@@ -150,7 +150,7 @@ def main(
                 )
                 tlc_bias_correction.fit_bias_correction(train_data, test_data)
                 bias_correctors[f"lctrsgd_lamb{lamb}"] = tlc_bias_correction
-        elif method == 'ideallct':
+        elif method == "ideallct":
             tlc_bias_correction = IdealLCT(
                 n_tasks=n_tasks,
                 n_cls=n_cls,
@@ -238,7 +238,7 @@ def main(
                     )
         elif method == "lctsgdttc":
             assert (
-                    "lctsgd" in bias_correctors
+                "lctsgd" in bias_correctors
             ), "Please run 'lctsgd' first before running 'lctsgd+tc'"
             for ttc_base in ttc_bases:
                 for ttc_delta in ttc_deltas:
@@ -257,7 +257,7 @@ def main(
                     )
         elif method == "lctsgdhtc":
             assert (
-                    "lctsgd" in bias_correctors
+                "lctsgd" in bias_correctors
             ), "Please run 'lctsgd' first before running 'lctsgdhtc'"
             hyperopt_bias_correction = HyperoptTemperatureCorrection(
                 n_tasks=n_tasks,
@@ -277,7 +277,7 @@ def main(
             bias_correctors["lctsgdhtc"] = hyperopt_bias_correction
         elif method == "lctsgdhstc":
             assert (
-                    "lctsgd" in bias_correctors
+                "lctsgd" in bias_correctors
             ), "Please run 'lctsgd' first before running 'lctsgdhstc'"
             hyperopt_bias_correction = HyperoptSequentialTemperatureCorrection(
                 n_tasks=n_tasks,
@@ -297,7 +297,7 @@ def main(
             bias_correctors["lctsgdhstc"] = hyperopt_bias_correction
         elif method == "lctsgdhshtc":
             assert (
-                    "lctsgd" in bias_correctors
+                "lctsgd" in bias_correctors
             ), "Please run 'lctsgd' first before running 'lctsgdhshtc'"
             hyperopt_bias_correction = HyperoptSharedTemperatureCorrection(
                 n_tasks=n_tasks,
@@ -370,7 +370,7 @@ def parse_args():
         "--methods",
         type=str,
         nargs="+",
-        required=True,
+        default=["tlc", "tlcsgd", "tlcicsgd"],
         choices=["tlc", "tlcic", "tlcsgd", "ttc", "tcb", "icicle"],
     )
     parser.add_argument("--device", type=str, default="cpu")
@@ -385,6 +385,9 @@ def parse_args():
     parser.add_argument("--icicle_batch_size", type=int, default=1024)
     parser.add_argument("--sgd_n_steps", type=int, default=100)
     parser.add_argument("--sgd_lr", type=float, default=0.01)
+    parser.add_argument(
+        "--lambdas", type=float, nargs="+", default=[0.01, 0.1, 1.0, 10.0, 100.0]
+    )
     parser.add_argument("--tlc_max_iters", type=int, default=100)
     parser.add_argument("--tlc_algorithm", type=str, default="tpe")
     parser.add_argument("--tlc_hp_space", type=str, default="normal")
@@ -401,37 +404,6 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    main(
-        input_dir=Path(
-            "results/CIFAR100x10/finetuning_ex2000_cifar100_resnet32_sdn/seed0/cifar100_icarl_finetuning/"
-        ),
-        output_dir=Path(
-            "bias_correction/CIFAR100x10/finetuning_ex2000_cifar100_resnet32_sdn/seed0/cifar100_icarl_finetuning/"
-        ),
-        # methods=['tlc', 'tlcsgd', 'tlcic', 'tlcicsgd','ttc', 'tcb', 'icicle'],
-        # methods=["tlc", "lctsgd", 'lctsgdhstc', "lctsgdhtc"],
-        methods=["tlc", "lctsgd", 'ideallct'],
-        device="cuda" if torch.cuda.is_available() else "cpu",
-        n_thresholds=101,
-        icicle_u=[0.05, 0.10, 0.15, 0.2],
-        icicle_eps=0.01,
-        icicle_batch_size=512,
-        sgd_lr=0.001,
-        sgd_n_steps=10000,
-        tlc_max_iters=1000,
-        tlc_algorithm="tpe",
-        tlc_hp_space="normal",
-        tlc_hp_min=-2.0,
-        tlc_hp_max=2.0,
-        tlc_hp_mu=0.0,
-        tlc_hp_sigma=1.0,
-        tcb_biases=[0.02, 0.05, 0.10, 0.15, 0.2],
-        ttc_bases=[0.5, 1.0, 2.0],
-        ttc_deltas=[0.1, 0.15, 0.2, 0.25, 0.3],
-        plot_best_methods=True,
-    )
-
-    exit()
     args = parse_args()
     main(
         input_dir=args.input_dir,
@@ -444,6 +416,7 @@ if __name__ == "__main__":
         icicle_batch_size=args.icicle_batch_size,
         sgd_n_steps=args.sgd_n_steps,
         sgd_lr=args.sgd_lr,
+        lambdas=args.lambdas,
         tlc_max_iters=args.tlc_max_iters,
         tlc_algorithm=args.tlc_algorithm,
         tlc_hp_space=args.tlc_hp_space,
@@ -452,5 +425,7 @@ if __name__ == "__main__":
         tlc_hp_mu=args.tlc_hp_mu,
         tlc_hp_sigma=args.tlc_hp_sigma,
         tcb_biases=args.tcb_biases,
+        ttc_bases=args.ttc_bases,
         ttc_deltas=args.ttc_deltas,
+        plot_best_methods=True,
     )

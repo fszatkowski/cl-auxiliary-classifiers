@@ -40,7 +40,9 @@ class IdealLCT(BiasCorrection):
         self, train_data: Data, test_data: Optional[List[Data]] = None
     ):
         assert test_data is not None
-        logits_test = torch.cat([data.logits.to(self.device) for data in test_data], dim=0)
+        logits_test = torch.cat(
+            [data.logits.to(self.device) for data in test_data], dim=0
+        )
 
         preds_masks = torch.nn.functional.one_hot(
             logits_test.argmax(dim=-1), num_classes=logits_test.shape[-1]

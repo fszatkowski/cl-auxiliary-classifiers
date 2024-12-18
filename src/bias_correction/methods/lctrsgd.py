@@ -18,7 +18,7 @@ class LCTRSGD(BiasCorrection):
         n_cls: int,
         classes_per_task: int,
         seed: int = 0,
-            lamb:float = 1.,
+        lamb: float = 1.0,
         n_steps=100,
         lr=0.01,
         device: str = "cuda",
