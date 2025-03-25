@@ -9,33 +9,32 @@
 num_tasks=$1
 seed=$2
 num_exemplars=$3
-lamb=$4
-lamb_a=$5
+alpha=$4
+beta=$5
 
 eval "$(conda shell.bash hook)"
 conda activate FACIL
 
-n_epochs=200
-tag="cifar100x${num_tasks}"
-approach='ancl'
+n_epochs=100
+tag="imagenet100x${num_tasks}"
+approach='der++'
 
 python src/main_incremental.py \
     --gpu 0 \
+    --num-workers 0 \
     --seed ${seed} \
-    --network resnet32 \
-    --datasets cifar100_icarl \
+    --network vit_b_16 \
+    --scheduler-name cosine \
+    --datasets imagenet_subset_kaggle \
     --num-tasks ${num_tasks} \
-    --nc-first-task 50 \
     --num-exemplars ${num_exemplars} \
     --use-test-as-val \
     --nepochs ${n_epochs} \
-    --batch-size 128 \
-    --lr 0.1 \
+    --batch-size 64 \
+    --lr 0.01 \
     --approach ${approach} \
-    --taskwise-kd \
-    --lamb ${lamb} \
-    --lamb-a ${lamb_a} \
-    --results-path ./results/CIFAR100x${num_tasks}/${approach}_tw_ex_${num_exemplars}_lamb_${lamb}_lamb_a_${lamb_a}/seed${seed} \
-    --log disk wandb \
+    --alpha ${alpha} \
+    --beta ${beta} \
+    --log disk \
+    --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_vit/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}/seed${seed} \
     --tags ${tag}
-

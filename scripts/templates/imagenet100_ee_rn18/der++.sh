@@ -9,9 +9,9 @@
 num_tasks=$1
 seed=$2
 num_exemplars=$3
-ic_config=$4
-alpha=$5
-beta=$6
+alpha=$4
+beta=$5
+ic_config=$6
 
 eval "$(conda shell.bash hook)"
 conda activate FACIL

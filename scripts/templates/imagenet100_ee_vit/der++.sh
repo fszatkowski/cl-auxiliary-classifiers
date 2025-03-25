@@ -16,26 +16,27 @@ ic_config=$6
 eval "$(conda shell.bash hook)"
 conda activate FACIL
 
-n_epochs=200
-tag="cifar100x${num_tasks}"
+n_epochs=100
+tag="imagenet100x${num_tasks}"
 approach='der++'
 
 python src/main_incremental.py \
     --gpu 0 \
     --num-workers 0 \
     --seed ${seed} \
-    --network resnet32 \
+    --network vit_b_16 \
+    --scheduler-name cosine \
     --ic-config ${ic_config} \
-    --datasets cifar100_icarl \
+    --datasets imagenet_subset_kaggle \
     --num-tasks ${num_tasks} \
     --num-exemplars ${num_exemplars} \
     --use-test-as-val \
     --nepochs ${n_epochs} \
-    --batch-size 128 \
-    --lr 0.1 \
+    --batch-size 64 \
+    --lr 0.01 \
     --approach ${approach} \
-        --alpha ${alpha} \
+    --alpha ${alpha} \
     --beta ${beta} \
     --log disk \
-    --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}_${ic_config}/seed${seed} \
+    --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_vit/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}_${ic_config}/seed${seed} \
     --tags ${tag}

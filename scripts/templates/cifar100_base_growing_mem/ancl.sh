@@ -25,8 +25,7 @@ python src/main_incremental.py \
     --network resnet32 \
     --datasets cifar100_icarl \
     --num-tasks ${num_tasks} \
-    --nc-first-task 50 \
-    --num-exemplars ${num_exemplars} \
+    --num-exemplars-per-class ${num_exemplars} \
     --use-test-as-val \
     --nepochs ${n_epochs} \
     --batch-size 128 \
@@ -36,6 +35,6 @@ python src/main_incremental.py \
     --lamb ${lamb} \
     --lamb-a ${lamb_a} \
     --results-path ./results/CIFAR100x${num_tasks}/${approach}_tw_ex_${num_exemplars}_lamb_${lamb}_lamb_a_${lamb_a}/seed${seed} \
-    --log disk wandb \
+    --log disk \
     --tags ${tag}
 

@@ -9,18 +9,19 @@
 num_tasks=$1
 seed=$2
 num_exemplars=$3
-lamb=$4
-lamb_a=$5
+alpha=${4:-0.5}
+beta=${5:-0.5}
 
 eval "$(conda shell.bash hook)"
 conda activate FACIL
 
 n_epochs=200
 tag="cifar100x${num_tasks}"
-approach='ancl'
+approach='der++'
 
 python src/main_incremental.py \
     --gpu 0 \
+    --num-workers 0 \
     --seed ${seed} \
     --network resnet32 \
     --datasets cifar100_icarl \
@@ -32,10 +33,10 @@ python src/main_incremental.py \
     --batch-size 128 \
     --lr 0.1 \
     --approach ${approach} \
-    --taskwise-kd \
-    --lamb ${lamb} \
-    --lamb-a ${lamb_a} \
-    --results-path ./results/CIFAR100x${num_tasks}/${approach}_tw_ex_${num_exemplars}_lamb_${lamb}_lamb_a_${lamb_a}/seed${seed} \
-    --log disk wandb \
+    --alpha ${alpha} \
+    --beta ${beta} \
+    --log disk \
+    --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}/seed${seed} \
+    --log disk \
     --tags ${tag}
 
