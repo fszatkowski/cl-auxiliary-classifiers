@@ -174,6 +174,21 @@ def load_averaged_scores(
         results_paths = [p for p in results_paths if filter(p)]
     parsed_scores = [load_data(path, downsample) for path in results_paths]
     parsed_scores = [p for p in parsed_scores if p is not None]
+
+    # import pandas as pd
+    # method = 'ancl'
+    # setting = 'CIFAR100x50'
+    #
+    # parsed_scores = [p for p in parsed_scores if method in p.metadata.exp_name and setting == p.metadata.setting and 'eq_' not in p.metadata.exp_name]
+    # outputs = []
+    # for s in parsed_scores:
+    #     if not s.early_exit:
+    #         outputs.append({'setting': s.metadata.setting, 'ee': s.early_exit, 'seed': s.metadata.seed, 'acc': s.tag_acc_final, 'exp_name': s.metadata.exp_name})
+    #     else:
+    #         outputs.append({'setting': s.metadata.setting, 'ee': s.early_exit, 'seed': s.metadata.seed, 'acc': s.per_th_acc[-1], 'exp_name': s.metadata.exp_name})
+    # df = pd.DataFrame(outputs)
+    # df = df.sort_values(by=['setting', 'ee', 'exp_name', 'seed'])
+
     averaged_scores = average_scores(parsed_scores)
     print(f"Parsed {len(averaged_scores)} scores")
     return averaged_scores

@@ -21,6 +21,7 @@ class LLL_Net(nn.Module):
         input_size=None,
         ic_weighting=None,
         detach_ics=False,
+        constant_ic_weights=False,
     ):
         head_var = model.head_var
         assert type(head_var) == str
@@ -63,6 +64,7 @@ class LLL_Net(nn.Module):
             input_size = ic_config["input_size"]
             ic_weighting = ic_config["ic_weighting"]
             detach_ics = ic_config["detach_ics"]
+            constant_ic_weights = ic_config["constant_ic_weights"]
 
         if ic_layers is None:
             ic_layers = []
@@ -96,6 +98,7 @@ class LLL_Net(nn.Module):
             self.heads = nn.ModuleList()
 
         self.ic_weighting = ic_weighting
+        self.constant_ic_weights = constant_ic_weights
         self.detach_ics = detach_ics
         self.exit_layer_idx = None
         self.task_cls = []
@@ -272,11 +275,15 @@ class LLL_Net(nn.Module):
         return len(self.ic_layers) > 0
 
     def get_ic_weights(self, current_epoch, max_epochs):
-        start_val = 0.01
-        ic_weights = [
-            start_val + (current_epoch / (max_epochs - 1)) * (final_weight - start_val)
-            for final_weight in self.ic_weighting
-        ]
+        if self.constant_ic_weights:
+            ic_weights = self.ic_weighting
+        else:
+            start_val = 0.01
+            ic_weights = [
+                start_val
+                + (current_epoch / (max_epochs - 1)) * (final_weight - start_val)
+                for final_weight in self.ic_weighting
+            ]
         weights = ic_weights + [1.0]
         assert len(weights) == len(self.heads)
         return weights

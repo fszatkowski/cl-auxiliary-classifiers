@@ -25,6 +25,7 @@ CONFIGS = {
         + ["standard_fc" for i in range(3)],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.05 * (i + 1) for i in range(18)],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_vgg19_medium": {
@@ -45,6 +46,7 @@ CONFIGS = {
         + ["standard_fc" for i in range(3)],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.09 * (i + 1) for i in range(10)],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_vgg19_small": {
@@ -61,6 +63,7 @@ CONFIGS = {
         + ["standard_fc" for i in range(3)],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.14 * (i + 1) for i in range(6)],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn": {
@@ -91,6 +94,69 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.15, 0.3, 0.45, 0.6, 0.75, 0.9],
+        "constant_ic_weights": False,
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_eq_weighting": {
+        "ic_layers": [
+            "layer1.2",
+            "layer1.4",
+            "layer2.1",
+            "layer2.3",
+            "layer3.0",
+            "layer3.2",
+        ],
+        "hook_placements": [
+            "output",
+            "output",
+            "output",
+            "output",
+            "output",
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_conv",
+            "standard_conv",
+            "standard_conv",
+            "standard_conv",
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+        "constant_ic_weights": False,
+        "detach_ics": False,
+    },
+    "cifar100_resnet32_const_weighting": {
+        "ic_layers": [
+            "layer1.2",
+            "layer1.4",
+            "layer2.1",
+            "layer2.3",
+            "layer3.0",
+            "layer3.2",
+        ],
+        "hook_placements": [
+            "output",
+            "output",
+            "output",
+            "output",
+            "output",
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv",
+            "standard_conv",
+            "standard_conv",
+            "standard_conv",
+            "standard_conv",
+            "standard_conv",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+        "constant_ic_weights": True,
         "detach_ics": False,
     },
     "cifar100_resnet32_uniform_1_only": {
@@ -106,6 +172,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.15],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_uniform_2_only": {
@@ -121,6 +188,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.3],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_uniform_3_only": {
@@ -136,6 +204,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.45],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_uniform_4_only": {
@@ -151,6 +220,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.6],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_uniform_5_only": {
@@ -166,6 +236,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.75],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_uniform_6_only": {
@@ -181,6 +252,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.9],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn_1_only": {
@@ -196,6 +268,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.15],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn_2_only": {
@@ -211,6 +284,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.3],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn_3_only": {
@@ -226,6 +300,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.45],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn_4_only": {
@@ -241,6 +316,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.6],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn_5_only": {
@@ -256,6 +332,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.75],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn_6_only": {
@@ -271,6 +348,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.9],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn_cascading": {
@@ -301,6 +379,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.15, 0.3, 0.45, 0.6, 0.75, 0.9],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn_ensembling": {
@@ -331,6 +410,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.15, 0.3, 0.45, 0.6, 0.75, 0.9],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_sdn_detach": {
@@ -361,6 +441,7 @@ CONFIGS = {
         ],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.15, 0.3, 0.45, 0.6, 0.75, 0.9],
+        "constant_ic_weights": False,
         "detach_ics": True,
     },
     "cifar100_resnet32_sparse": {
@@ -377,6 +458,7 @@ CONFIGS = {
         "ic_type": ["standard_conv", "standard_conv", "standard_conv", "standard_fc"],
         "input_size": [3, 32, 32],
         "ic_weighting": [0.15, 0.45, 0.75],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "cifar100_resnet32_dense": {
@@ -438,6 +520,7 @@ CONFIGS = {
             0.9,
             0.95,
         ],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "imagenet100_resnet18_sdn": {
@@ -468,6 +551,7 @@ CONFIGS = {
         ],
         "input_size": [3, 224, 224],
         "ic_weighting": [0.3, 0.4, 0.55, 0.65, 0.8, 0.9],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "imagenet100_resnet18_dense": {
@@ -501,6 +585,7 @@ CONFIGS = {
         ],
         "input_size": [3, 224, 224],
         "ic_weighting": [0.2, 0.3, 0.4, 0.55, 0.65, 0.8, 0.9],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "imagenet100_vit_base": {
@@ -558,6 +643,7 @@ CONFIGS = {
             0.8,
             0.88,
         ],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "imagenet100_vit_base_dense": {
@@ -663,6 +749,7 @@ CONFIGS = {
             0.88,
             0.92,
         ],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "imagenet100_vit_ln": {
@@ -720,6 +807,7 @@ CONFIGS = {
             0.8,
             0.88,
         ],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "imagenet100_vit_ln_dense": {
@@ -826,6 +914,7 @@ CONFIGS = {
             0.92,
             0.96,
         ],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "test_mnist": {
@@ -834,6 +923,7 @@ CONFIGS = {
         "ic_layers": ["conv1", "conv2", "fc1"],
         "input_size": [1, 28, 28],
         "ic_weighting": [0.3, 0.6, 0.8],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
     "test_mnist_cascading": {
@@ -847,6 +937,7 @@ CONFIGS = {
         "ic_layers": ["conv1", "conv2", "fc1"],
         "input_size": [1, 28, 28],
         "ic_weighting": [0.3, 0.6, 0.8],
+        "constant_ic_weights": False,
         "detach_ics": False,
     },
 }

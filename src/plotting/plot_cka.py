@@ -172,13 +172,13 @@ def plot_cka(result_paths: List[Path], output_dir: Path):
                 if idx == 0:
                     method_plot.set_yticklabels(
                         [
-                            "L1.B3",
-                            "L1.B5",
-                            "L2.B2",
-                            "L2.B4",
-                            "L3.B1",
-                            "L3.B3",
-                            "L3.B5",
+                            "AC1",
+                            "AC2",
+                            "AC3",
+                            "AC4",
+                            "AC5",
+                            "AC6",
+                            "Final"
                         ],
                         fontsize=TICKS_FONTSIZE,
                         rotation=0,
@@ -188,7 +188,7 @@ def plot_cka(result_paths: List[Path], output_dir: Path):
 
             fig.tight_layout()
             # fig.savefig(output_dir / f"{setting}_{ac_setup}.png")
-            fig.savefig(output_dir / f"{setting}_{ac_setup}.pdf")
+            fig.savefig(output_dir / f"{setting}_{ac_setup.replace(' ', '_')}.pdf")
 
 
 if __name__ == "__main__":
