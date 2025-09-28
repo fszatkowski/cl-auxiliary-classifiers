@@ -38,5 +38,5 @@ python src/main_incremental.py \
     --alpha ${alpha} \
     --beta ${beta} \
     --log disk \
-    --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_rn18/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}_${ic_config}/seed${seed} \
+    --results-path /data/SHARE/fszatkowski/results_recomputed_in/ImageNet100x${num_tasks}_rn18/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}_${ic_config}/seed${seed} \
     --tags ${tag}

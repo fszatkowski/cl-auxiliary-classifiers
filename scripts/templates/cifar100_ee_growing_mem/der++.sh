@@ -34,7 +34,7 @@ python src/main_incremental.py \
     --batch-size 128 \
     --lr 0.1 \
     --approach ${approach} \
-        --alpha ${alpha} \
+    --alpha ${alpha} \
     --beta ${beta} \
     --log disk \
     --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}_${ic_config}/seed${seed} \

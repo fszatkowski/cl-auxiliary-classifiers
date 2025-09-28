@@ -18,6 +18,13 @@ n_epochs=200
 tag="cifar100x${num_tasks}"
 approach='lwf'
 
+results_path=./results_extended_logging/CIFAR100x${num_tasks}/${approach}_tw_lamb_${lamb}_${ic_config}/seed${seed}
+# Exit script if results path exists
+if [ -d "${results_path}" ]; then
+    echo "Results path ${results_path} already exists. Skipping the computation."
+    exit 1
+fi
+
 python src/main_incremental.py \
     --gpu 0 \
     --seed ${seed} \
@@ -33,7 +40,7 @@ python src/main_incremental.py \
     --approach ${approach} \
     --taskwise-kd \
     --lamb ${lamb} \
-    --results-path ./results/CIFAR100x${num_tasks}/${approach}_tw_lamb_${lamb}_${ic_config}/seed${seed} \
+    --results-path ${results_path} \
     --log disk \
     --tags ${tag}
 

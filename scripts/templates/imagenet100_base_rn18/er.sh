@@ -32,5 +32,5 @@ python src/main_incremental.py \
     --lr 0.1 \
     --approach ${approach} \
     --log disk \
-    --results-path /data/SHARE/fszatkowski/results/ImageNet100x${num_tasks}_rn18/${approach}_ex${num_exemplars}/seed${seed} \
+    --results-path /data/SHARE/fszatkowski/results_recomputed_in/ImageNet100x${num_tasks}_rn18/${approach}_ex${num_exemplars}/seed${seed} \
     --tags ${tag}

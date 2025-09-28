@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --time=48:00:00   # walltime
-#SBATCH --ntasks=4   # number of processor cores (i.e. tasks)
+#SBATCH --cpus-per-task=4   # number of processor cores (i.e. tasks)
 #SBATCH --gpus=1
 
 #set -e
@@ -19,6 +19,13 @@ n_epochs=200
 tag="cifar100x${num_tasks}"
 approach='der++'
 
+results_path=./results_extended_logging/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}/seed${seed}
+# Exit script if results path exists
+if [ -d "${results_path}" ]; then
+    echo "Results path ${results_path} already exists. Skipping the computation."
+    exit 1
+fi
+
 python src/main_incremental.py \
     --gpu 0 \
     --num-workers 0 \
@@ -35,5 +42,5 @@ python src/main_incremental.py \
     --alpha ${alpha} \
     --beta ${beta} \
     --log disk \
-    --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}/seed${seed} \
+    --results-path ${results_path} \
     --tags ${tag}

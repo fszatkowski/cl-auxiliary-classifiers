@@ -1,0 +1,2 @@
+Template scripts for running slurm experiments for most of the experiments in the paper. Should be straight-forward to use, with the directory indicating the experiment type (e.g. - imagenet_ee_vit are the scripts for running ImageNet100 training with early-exit version of ViT), and the script names in the specific directories are continual learning method names.
+These scripts should cover most of the experiments in the paper. Reach out to the authors in case of any questions.

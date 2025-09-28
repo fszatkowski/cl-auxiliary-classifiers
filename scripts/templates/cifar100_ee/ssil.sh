@@ -19,6 +19,13 @@ n_epochs=200
 tag="cifar100x${num_tasks}"
 approach='ssil'
 
+results_path=./results_extended_logging/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_lamb_${lamb}_${ic_config}/seed${seed}
+# Exit script if results path exists
+if [ -d "${results_path}" ]; then
+    echo "Results path ${results_path} already exists. Skipping the computation."
+    exit 1
+fi
+
 python src/main_incremental.py \
     --gpu 0 \
     --num-workers 0 \
@@ -35,5 +42,5 @@ python src/main_incremental.py \
     --approach ${approach} \
     --lamb ${lamb} \
     --log disk \
-    --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_lamb_${lamb}_${ic_config}/seed${seed} \
+    --results-path ${results_path} \
     --tags ${tag}

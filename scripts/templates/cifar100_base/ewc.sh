@@ -18,6 +18,12 @@ n_epochs=200
 tag="cifar100x${num_tasks}"
 approach='ewc'
 
+results_path=./results_extended_logging/CIFAR100x${num_tasks}/${approach}_lamb_${lamb}_alpha_${alpha}/seed${seed}
+# Exit script if results path exists
+if [ -d "${results_path}" ]; then
+    echo "Results path ${results_path} already exists. Skipping the computation."
+    exit 1
+fi
 
 python src/main_incremental.py \
     --gpu 0 \
@@ -34,5 +40,5 @@ python src/main_incremental.py \
     --lamb ${lamb} \
     --alpha ${alpha} \
     --log disk \
-    --results-path ./results/CIFAR100x${num_tasks}/${approach}_lamb_${lamb}_alpha_${alpha}/seed${seed} \
+    --results-path ${results_path} \
     --tags ${tag}

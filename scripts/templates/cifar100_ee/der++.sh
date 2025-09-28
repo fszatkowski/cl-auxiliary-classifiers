@@ -20,6 +20,13 @@ n_epochs=200
 tag="cifar100x${num_tasks}"
 approach='der++'
 
+results_path=./results_extended_logging/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}_${ic_config}/seed${seed}
+# Exit script if results path exists
+if [ -d "${results_path}" ]; then
+    echo "Results path ${results_path} already exists. Skipping the computation."
+    exit 1
+fi
+
 python src/main_incremental.py \
     --gpu 0 \
     --num-workers 0 \
@@ -34,8 +41,8 @@ python src/main_incremental.py \
     --batch-size 128 \
     --lr 0.1 \
     --approach ${approach} \
-        --alpha ${alpha} \
+    --alpha ${alpha} \
     --beta ${beta} \
     --log disk \
-    --results-path ./results/CIFAR100x${num_tasks}/${approach}_ex${num_exemplars}_alpha_${alpha}_beta_${beta}_${ic_config}/seed${seed} \
+    --results-path ${results_path} \
     --tags ${tag}
