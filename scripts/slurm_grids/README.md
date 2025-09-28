@@ -1,0 +1,1 @@
+Rough working scripts for running experiment grids on a slurm cluster. These scripts use the scripts in `scripts/templates/`and should contain most of the hyperparameter values used to obtain the experimental results published in the paper.
