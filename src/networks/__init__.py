@@ -6,6 +6,7 @@ from .resnet32 import resnet32
 from .resnet_cifar import *
 from .vgg_cifar import *
 from .vggnet import VggNet
+from .wide_resnet_cifar import wide_resnet16_2
 
 # available torchvision models
 tvmodels = [
@@ -64,11 +65,7 @@ allmodels = (
     + resnet_cifar.__all__
     + vgg_cifar.__all__
     + convnext_cifar.__all__
-    + [
-        "resnet32",
-        "LeNet",
-        "VggNet",
-    ]
+    + ["resnet32", "LeNet", "VggNet", "wide_resnet16_2"]
 )
 
 

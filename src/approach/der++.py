@@ -426,20 +426,21 @@ class DERExemplarsDatasetWrapper(Dataset):
         )
 
     def mask_new_outputs(self, num_outputs):
-        for idx in range(len(self.logits)):
-            org_logits = self.logits[idx]
-            org_logits_mask = self.logit_masks[idx]
-            pad = torch.zeros((num_outputs,))
+        with torch.no_grad():
+            for idx in range(len(self.logits)):
+                org_logits = self.logits[idx]
+                org_logits_mask = self.logit_masks[idx]
+                pad = torch.zeros((num_outputs,))
 
-            if len(org_logits.shape) == 2:
-                # early exit
-                num_ic = org_logits.shape[0]
-                padded_logits = torch.cat(
-                    (org_logits, torch.zeros((num_ic, num_outputs))), dim=1
-                )
-            else:
-                padded_logits = torch.cat((org_logits, pad), dim=0)
-            padded_mask = torch.cat((org_logits_mask, pad), dim=0)
+                if len(org_logits.shape) == 2:
+                    # early exit
+                    num_ic = org_logits.shape[0]
+                    padded_logits = torch.cat(
+                        (org_logits, torch.zeros((num_ic, num_outputs))), dim=1
+                    )
+                else:
+                    padded_logits = torch.cat((org_logits, pad), dim=0)
+                padded_mask = torch.cat((org_logits_mask, pad), dim=0)
 
-            self.logits[idx] = padded_logits
-            self.logit_masks[idx] = padded_mask
+                self.logits[idx] = padded_logits
+                self.logit_masks[idx] = padded_mask

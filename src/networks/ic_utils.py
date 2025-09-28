@@ -13,6 +13,8 @@ def create_ic(
 ):
     if ic_type == "standard_conv":
         return StandardConvHead(ic_input_size, num_outputs)
+    if ic_type == "standard_conv_4x":
+        return StandardConvHead4x(ic_input_size, num_outputs)
     elif ic_type == "standard_cascading_conv":
         return StandardCascadingConvHead(ic_input_size, num_outputs)
     elif ic_type == "standard_ensembling_conv":
@@ -126,6 +128,36 @@ class StandardConvHead(nn.Module):
             self.alpha = nn.Parameter(torch.rand(1))
             self.pool = True
             num_input_features = math.prod(input_features) // 4
+
+        else:
+            self.pool = False
+            num_input_features = math.prod(input_features)
+
+        self.classifier = nn.Linear(num_input_features, num_classes)
+
+    def forward(self, x, return_features=False):
+        if self.pool:
+            pool_output = self.alpha * self.maxpool(x) + (
+                1 - self.alpha
+            ) * self.avgpool(x)
+        else:
+            pool_output = x
+        cls_output = self.classifier(pool_output.view(pool_output.size(0), -1))
+        if return_features:
+            return cls_output, pool_output
+        else:
+            return cls_output
+
+
+class StandardConvHead4x(nn.Module):
+    def __init__(self, input_features: Tuple[int, ...], num_classes: int):
+        super().__init__()
+        if not (input_features[-1] == 1 and input_features[-2] == 1):
+            self.maxpool = nn.MaxPool2d(kernel_size=4)
+            self.avgpool = nn.AvgPool2d(kernel_size=4)
+            self.alpha = nn.Parameter(torch.rand(1))
+            self.pool = True
+            num_input_features = math.prod(input_features) // 16
 
         else:
             self.pool = False

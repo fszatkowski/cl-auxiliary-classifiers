@@ -1,5 +1,6 @@
 import argparse
 import importlib
+import json
 import os
 import time
 from functools import reduce
@@ -862,6 +863,58 @@ def main(argv=None):
             logger.log_figure(name="weights", iter=t, figure=weights)
             logger.log_figure(name="bias", iter=t, figure=biases)
 
+        # Early exit inference
+        if net.is_early_exit():
+            print("Running early exit evaluation...")
+            th_granularity = 0.001
+            ee_thresholds = torch.tensor(
+                [th_granularity * i for i in range(int(1 / th_granularity) + 1)]
+            )
+            exit_costs = None
+            baseline_cost = None
+            results = {}
+            for u in range(t + 1):
+                exit_costs, baseline_cost, per_ic_acc, per_th_acc, per_th_exit_cnt = (
+                    appr.eval_early_exit(
+                        u,
+                        tst_loader[u],
+                        ee_thresholds,
+                        exit_costs,
+                        baseline_cost,
+                    )
+                )
+                results[u] = {
+                    "exit_costs": exit_costs,
+                    "baseline_cost": baseline_cost,
+                    "per_ic_acc": per_ic_acc,
+                    "per_th_acc": per_th_acc,
+                    "per_th_exit_cnt": per_th_exit_cnt,
+                }
+            avg_results = combine_ee_eval_results(results, taskcla)
+            results["avg"] = avg_results
+            results_path = Path(logger.exp_path) / "results" / f"ee_eval_{t}.npy"
+            np.save(results_path, results)
+            plot_path = Path(logger.exp_path) / "results" / f"ee_eval_{t}.png"
+            visualize_ee_results(results["avg"], plot_path)
+
+            # TODO validate if this is no longer needed - seems to have no side effects
+            # last_task_id = len(trn_loader) - 1
+            # appr.eval_early_exit(
+            #     last_task_id,
+            #     trn_loader[last_task_id],
+            #     ee_thresholds,
+            #     exit_costs,
+            #     baseline_cost,
+            # )
+
+    if net.is_early_exit():
+        # Save ee results after the last task for backward compatibility
+        results_path = Path(logger.exp_path) / "results" / f"ee_eval.npy"
+        np.save(results_path, results)
+        plot_path = Path(logger.exp_path) / "results" / f"ee_eval.png"
+        visualize_ee_results(results["avg"], plot_path)
+
+    # Compute average accuracies
     if net.is_early_exit():
         for ic_idx in range(len(net.ic_layers) + 1):
             if ic_idx == len(net.ic_layers):
@@ -913,49 +966,28 @@ def main(argv=None):
 
         # Print Summary
         utils.print_summary(acc_taw, acc_tag, forg_taw, forg_tag)
+        final_metrics = {
+            "acc_taw": acc_taw,
+            "acc_tag": acc_tag,
+            "forg_taw": forg_taw,
+            "forg_tag": forg_tag,
+        }
+        np.save(Path(logger.exp_path) / "results" / "final_metrics.npy", final_metrics)
 
-    if net.is_early_exit():
-        print("Running final early exit evaluation...")
-        th_granularity = 0.001
-        ee_thresholds = torch.tensor(
-            [th_granularity * i for i in range(int(1 / th_granularity) + 1)]
+    peak_memory_used = torch.cuda.max_memory_allocated() / 1024**3
+    peak_memory_reserved = torch.cuda.max_memory_reserved() / 1024**3
+    memory_cuda_free, cuda_stats_total = torch.cuda.mem_get_info("cuda:0")
+    with Path(logger.exp_path).joinpath("memory_stats.json").open("w") as f:
+        json.dump(
+            {
+                "peak_memory_used": peak_memory_used,
+                "peak_memory_reserved": peak_memory_reserved,
+                "cuda_call_free": memory_cuda_free / 1024**3,
+                "cuda_call_total": cuda_stats_total / 1024**3,
+            },
+            f,
+            indent=4,
         )
-        exit_costs = None
-        baseline_cost = None
-        results = {}
-        for u in range(max_task):
-            exit_costs, baseline_cost, per_ic_acc, per_th_acc, per_th_exit_cnt = (
-                appr.eval_early_exit(
-                    u,
-                    tst_loader[u],
-                    ee_thresholds,
-                    exit_costs,
-                    baseline_cost,
-                )
-            )
-            results[u] = {
-                "exit_costs": exit_costs,
-                "baseline_cost": baseline_cost,
-                "per_ic_acc": per_ic_acc,
-                "per_th_acc": per_th_acc,
-                "per_th_exit_cnt": per_th_exit_cnt,
-            }
-        avg_results = combine_ee_eval_results(results, taskcla)
-        results["avg"] = avg_results
-        results_path = Path(logger.exp_path) / "results" / "ee_eval.npy"
-        np.save(results_path, results)
-        plot_path = Path(logger.exp_path) / "results" / "ee_eval.png"
-        visualize_ee_results(results["avg"], plot_path)
-
-        last_task_id = len(trn_loader) - 1
-        appr.eval_early_exit(
-            last_task_id,
-            trn_loader[last_task_id],
-            ee_thresholds,
-            exit_costs,
-            baseline_cost,
-        )
-
     print("[Elapsed time = {:.1f} h]".format((time.time() - tstart) / (60 * 60)))
     print("Done!")
 

@@ -940,4 +940,32 @@ CONFIGS = {
         "constant_ic_weights": False,
         "detach_ics": False,
     },
+    "cifar100_wideresnet16_sdn": {
+        "ic_layers": [
+            "block1.layer.0",
+            "block1.layer.1",
+            "block2.layer.0",
+            "block2.layer.1",
+            "block3.layer.0",
+        ],
+        "hook_placements": [
+            "output",
+            "output",
+            "output",
+            "output",
+            "output",
+        ],
+        "ic_type": [
+            "standard_conv_4x",
+            "standard_conv_4x",
+            "standard_conv_4x",
+            "standard_conv_4x",
+            "standard_conv_4x",
+            "standard_fc",
+        ],
+        "input_size": [3, 32, 32],
+        "ic_weighting": [0.15, 0.35, 0.5, 0.65, 0.8],
+        "constant_ic_weights": False,
+        "detach_ics": False,
+    },
 }
