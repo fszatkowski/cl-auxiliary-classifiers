@@ -171,15 +171,7 @@ def plot_cka(result_paths: List[Path], output_dir: Path):
                     raise NotImplementedError()
                 if idx == 0:
                     method_plot.set_yticklabels(
-                        [
-                            "AC1",
-                            "AC2",
-                            "AC3",
-                            "AC4",
-                            "AC5",
-                            "AC6",
-                            "Final"
-                        ],
+                        ["AC1", "AC2", "AC3", "AC4", "AC5", "AC6", "Final"],
                         fontsize=TICKS_FONTSIZE,
                         rotation=0,
                     )
